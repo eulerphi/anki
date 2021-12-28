@@ -52,7 +52,7 @@ init input =
 
 initCmd : ViewContext msg -> Cmd msg
 initCmd vc =
-    makeGetViewpointCmd vc
+    makeGetViewportCmd vc
 
 
 
@@ -77,18 +77,23 @@ update msg vc =
             ( vc |> updateOnSizeChanged e, Cmd.none )
 
         WindowResized ->
-            ( vc, makeGetViewpointCmd vc )
+            ( vc, makeGetViewportCmd vc )
 
 
 
 -- PRIVATE
 
 
-makeGetViewpointCmd : ViewContext msg -> Cmd msg
-makeGetViewpointCmd vc =
+makeGetViewportCmd : ViewContext msg -> Cmd msg
+makeGetViewportCmd vc =
     Task.perform (vc.envelope << ViewportChanged) Browser.Dom.getViewport
 
 
 updateOnSizeChanged : Browser.Dom.Viewport -> ViewContext msg -> ViewContext msg
-updateOnSizeChanged { viewport } vc =
-    { vc | size = Size viewport.width viewport.height }
+updateOnSizeChanged { scene, viewport } vc =
+    { vc
+        | size =
+            Size
+                (max scene.width viewport.width)
+                (max scene.height viewport.height)
+    }

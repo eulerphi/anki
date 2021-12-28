@@ -32,6 +32,12 @@ type Mark
     | Red
 
 
+type alias Arrow =
+    { src : Square
+    , dst : Maybe Square
+    }
+
+
 nextMark : Mark -> Mark
 nextMark current =
     case current of
@@ -103,9 +109,11 @@ none =
 
 
 type alias ViewInput msg =
-    { board : Board
+    { arrows : List Arrow
+    , board : Board
     , clickSquareMsg : Square -> msg
     , marks : Dict Int Mark
+    , noopMsg : msg
     , playerColor : PieceColor
     }
 
@@ -145,6 +153,9 @@ view input position =
                     (viewSquares input s.prevMove)
                 , Html.div
                     []
+                    (viewMarks input)
+                , Html.div
+                    []
                     (viewPieces input.board s.position)
                 ]
 
@@ -155,9 +166,20 @@ viewSquares input prevMove =
         |> List.map (viewSquare input prevMove)
 
 
-viewMark : ViewInput msg -> Mark -> List (Html msg)
-viewMark input mark =
+viewMarks : ViewInput msg -> List (Html msg)
+viewMarks input =
+    Square.all
+        |> List.map (viewMark input)
+        |> List.foldr (++) []
+
+
+viewMark : ViewInput msg -> Square -> List (Html msg)
+viewMark input square =
     let
+        mark =
+            Dict.get (Square.toInt square) input.marks
+                |> Maybe.withDefault NoMark
+
         color =
             case mark of
                 NoMark ->
@@ -174,13 +196,26 @@ viewMark input mark =
 
     else
         [ Html.div
-            [ HtmlAttrs.style "pointer-events" "none"
-            , HtmlAttrs.style "border-radius" "50%"
-            , HtmlAttrs.style "border" ("4px solid " ++ color)
-            , HtmlAttrs.style "height" "90%"
-            , HtmlAttrs.style "width" "90%"
+            [ HtmlAttrs.style "height" "12.5%"
+            , HtmlAttrs.style "width" "12.5%"
+            , HtmlAttrs.style "transform" (square |> toPos |> translate input.board)
+            , HtmlAttrs.style "position" "absolute"
+            , HtmlAttrs.style "top" "0"
+            , HtmlAttrs.style "left" "0"
+            , HtmlAttrs.style "pointer-events" "none"
+            , HtmlAttrs.style "justify-content" "center"
+            , HtmlAttrs.style "align-items" "center"
+            , HtmlAttrs.style "display" "flex"
             ]
-            []
+            [ Html.div
+                [ HtmlAttrs.style "pointer-events" "none"
+                , HtmlAttrs.style "border-radius" "50%"
+                , HtmlAttrs.style "border" ("4px solid " ++ color)
+                , HtmlAttrs.style "height" "90%"
+                , HtmlAttrs.style "width" "90%"
+                ]
+                []
+            ]
         ]
 
 
@@ -190,7 +225,7 @@ viewSquare input prevMove square =
         moveCss =
             case prevMove of
                 Nothing ->
-                    []
+                    [ HtmlAttrs.style "opacity" "0" ]
 
                 Just pm ->
                     if Move.from pm.move == square || Move.to pm.move == square then
@@ -199,28 +234,23 @@ viewSquare input prevMove square =
                         ]
 
                     else
-                        []
+                        [ HtmlAttrs.style "opacity" "0" ]
 
-        markContent =
-            Dict.get (Square.toInt square) input.marks
-                |> Maybe.withDefault NoMark
-                |> viewMark input
+        btnCss =
+            [ HtmlAttrs.style "height" "12.5%"
+            , HtmlAttrs.style "width" "12.5%"
+            , HtmlAttrs.style "transform" (square |> toPos |> translate input.board)
+            , HtmlAttrs.style "position" "absolute"
+            , HtmlAttrs.style "top" "0"
+            , HtmlAttrs.style "left" "0"
+            , HtmlAttrs.style "border" "none"
+            , Html.Events.onClick (input.clickSquareMsg square)
+            , Html.Events.onDoubleClick input.noopMsg
+            ]
     in
-    Html.div
-        ([ HtmlAttrs.style "height" "12.5%"
-         , HtmlAttrs.style "width" "12.5%"
-         , HtmlAttrs.style "transform" (square |> toPos |> translate input.board)
-         , HtmlAttrs.style "position" "absolute"
-         , HtmlAttrs.style "top" "0"
-         , HtmlAttrs.style "left" "0"
-         , HtmlAttrs.style "display" "flex"
-         , HtmlAttrs.style "justify-content" "center"
-         , HtmlAttrs.style "align-items" "center"
-         , Html.Events.onClick (input.clickSquareMsg square)
-         ]
-            ++ moveCss
-        )
-        markContent
+    Html.button
+        (btnCss ++ moveCss)
+        []
 
 
 viewPieces : Board -> Position -> List (Html msg)

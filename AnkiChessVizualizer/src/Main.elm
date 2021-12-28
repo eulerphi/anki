@@ -8,7 +8,7 @@ import Html exposing (Html)
 import Html.Attributes as HtmlAttrs
 import Html.Events
 import Input exposing (Input)
-import Json.Decode exposing (maybe)
+import Json.Decode
 import Json.Encode as E
 import MaybeEx
 import PieceColor exposing (PieceColor)
@@ -107,18 +107,21 @@ view m =
             , HtmlAttrs.style "margin" "0 auto"
             ]
             [ Html.button
-                [ HtmlAttrs.style "padding" "20px 20px"
+                [ HtmlAttrs.style "padding" "5px 5px"
+                , HtmlAttrs.style "font-size" "24px"
                 , Html.Events.onClick ClearMarks
                 ]
                 [ Html.text "clear marks" ]
             , Html.button
-                [ HtmlAttrs.style "padding" "20px 20px"
+                [ HtmlAttrs.style "padding" "5px 5px"
+                , HtmlAttrs.style "font-size" "24px"
                 , HtmlAttrs.style "margin" "0px 20px"
                 , Html.Events.onClick PrevMove
                 ]
                 [ Html.text "< prev move" ]
             , Html.button
-                [ HtmlAttrs.style "padding" "20px 20px"
+                [ HtmlAttrs.style "padding" "5px 5px"
+                , HtmlAttrs.style "font-size" "24px"
                 , Html.Events.onClick NextMove
                 ]
                 [ Html.text "next move >" ]
@@ -157,8 +160,10 @@ view m =
                         ]
                         [ m.current.step
                             |> Board.view
-                                { board = m.board
+                                { arrows = []
+                                , board = m.board
                                 , marks = m.marks
+                                , noopMsg = NoOp
                                 , playerColor = m.playerColor
                                 , clickSquareMsg = MarkSquare
                                 }
@@ -191,7 +196,7 @@ viewLogStep stepIdx idx step =
                 ( [ HtmlAttrs.style "color" "blue"
                   , HtmlAttrs.style "font-weight" "bold"
                   ]
-                , "🡆"
+                , ">"
                 )
 
             else
@@ -200,7 +205,9 @@ viewLogStep stepIdx idx step =
     Html.tr
         highlightCss
         [ Html.td
-            [ HtmlAttrs.style "text-align" "right" ]
+            [ HtmlAttrs.style "width" "10%"
+            , HtmlAttrs.style "text-align" "right"
+            ]
             [ Html.text highlightContent ]
         , Html.td
             [ HtmlAttrs.style "width" "10%" ]
@@ -252,7 +259,7 @@ update msg m =
                         Dict.remove key m.marks
 
                 m_ =
-                    { m | marks = marks_, prompt = String.fromInt key }
+                    { m | marks = marks_ }
             in
             ( m_, Cmd.none )
 
