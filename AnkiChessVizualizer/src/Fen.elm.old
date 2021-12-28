@@ -1,0 +1,66 @@
+module Fen exposing (Data, fromString, start)
+
+import Piece
+
+
+type alias Data =
+    { pieces : List Piece.Data
+    , whiteToPlay : Bool
+    }
+
+
+
+-- type alias Piece =
+--     { rank : Int
+--     , file : Int
+--     , code : String
+--     }
+
+
+fromString : String -> Data
+fromString fen =
+    let
+        parts =
+            fen |> String.split " "
+
+        pieces =
+            parts
+                |> List.head
+                |> Maybe.map (String.split "/")
+                |> Maybe.map (List.indexedMap parseRankString)
+                |> Maybe.map (List.foldr (++) [])
+                |> Maybe.withDefault []
+
+        whiteToPlay =
+            parts
+                |> List.drop 1
+                |> List.head
+                |> Maybe.map (\value -> value == "w")
+                |> Maybe.withDefault True
+    in
+    { pieces = pieces, whiteToPlay = whiteToPlay }
+
+
+start : Data
+start =
+    "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+        |> fromString
+
+
+parseRankString : Int -> String -> List Piece.Data
+parseRankString lineIdx line =
+    line
+        |> String.toList
+        |> List.map
+            (\code ->
+                let
+                    str =
+                        String.fromChar code
+                in
+                String.toInt str
+                    |> Maybe.map (\d -> List.repeat d "")
+                    |> Maybe.withDefault [ str ]
+            )
+        |> List.foldr (++) []
+        |> List.indexedMap (\idx code -> { rank = lineIdx + 1, file = idx + 1, code = code })
+        |> List.filter (\p -> not (String.isEmpty p.code))

@@ -1,0 +1,26 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Anki Chess Vizualizer</title>
+    <script type="text/javascript" src="build/app.js"></script>
+</head>
+
+<body>
+    <main></main>
+    <script type="text/javascript">
+        var elmApp = Elm.Main.init({
+            node: document.querySelector('main'),
+            flags: {
+                devicePixelRatio: window.devicePixelRatio,
+                explanation: "",
+                fen: "8/7p/8/6p1/5q2/Q6K/2p5/5k2 b - - 0 1",
+                moves: "Qh4",
+                prompt: "Mate in One:"
+            }
+        });
+    </script>
+</body>
+
+</html>
