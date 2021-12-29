@@ -120,7 +120,7 @@ clickMoving m square =
 
                 Just src ->
                     if Square.toInt src == Square.toInt square then
-                        { m | selected = Nothing, prompt = "same" }
+                        { m | selected = Nothing }
 
                     else
                         Position.movesFrom src step.position
