@@ -240,15 +240,34 @@ arrows m =
                     ]
                     [ Svg.path
                         [ SvgAttrs.d "M0,0 V4 L3,2 Z"
-                        , SvgAttrs.fill "#15781B"
+                        , SvgAttrs.fill arrowColor
                         ]
                         []
                     ]
                 ]
+
+        selection =
+            case m.selected of
+                Nothing ->
+                    Svg.g [] []
+
+                Just sq ->
+                    sq
+                        |> centerPoint
+                        |> (\{ x, y } ->
+                                Svg.rect
+                                    [ SvgAttrs.x (x - 0.5 |> String.fromFloat)
+                                    , SvgAttrs.y (y - 0.5 |> String.fromFloat)
+                                    , SvgAttrs.width "1"
+                                    , SvgAttrs.height "1"
+                                    , SvgAttrs.fill arrowColor
+                                    ]
+                                    []
+                           )
     in
     m.arrows
         |> List.map arrow_
-        |> (\xs -> Svg.svg attrs (defs :: xs))
+        |> (\xs -> Svg.svg attrs (defs :: selection :: xs))
 
 
 arrow_ : Arrow -> Html Msg
@@ -265,12 +284,17 @@ arrow_ arrow =
         , SvgAttrs.y1 (String.fromFloat src.y)
         , SvgAttrs.x2 (String.fromFloat dst.x)
         , SvgAttrs.y2 (String.fromFloat dst.y)
-        , SvgAttrs.stroke "#15781B"
+        , SvgAttrs.stroke arrowColor
         , SvgAttrs.strokeLinecap "round"
         , SvgAttrs.strokeWidth "0.15625"
         , SvgAttrs.markerEnd "url(#arrowhead)"
         ]
         []
+
+
+arrowColor : String
+arrowColor =
+    "#003088"
 
 
 {-| COORDS

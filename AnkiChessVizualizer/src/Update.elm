@@ -55,9 +55,21 @@ clickArrowing m square =
                 { m | selected = Nothing }
 
             else
+                let
+                    ( haves, havenots ) =
+                        m.arrows
+                            |> List.partition (\a -> a.src == sq && a.dst == square)
+
+                    arrows_ =
+                        if List.length haves > 0 then
+                            havenots
+
+                        else
+                            Arrow sq square :: m.arrows
+                in
                 Arrow sq square
                     :: m.arrows
-                    |> (\xs -> { m | selected = Nothing, arrows = xs })
+                    |> (\xs -> { m | selected = Nothing, arrows = arrows_ })
 
         Nothing ->
             { m | selected = Just square }
