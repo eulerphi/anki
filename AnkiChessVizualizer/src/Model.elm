@@ -26,12 +26,13 @@ type Mark
 type alias Model =
     { arrows : List Arrow
     , board : Board
-    , current : { idx : Int, step : Maybe Step }
+    , idx : Int
     , marks : Dict Int Mark
     , mode : Mode
     , playerColor : PieceColor
     , prompt : String
     , selected : Maybe Square
+    , step : Maybe Step
     , steps : Array Step
     , viewCtx : ViewContext Msg
     }
@@ -71,23 +72,24 @@ fromInput input =
         steps =
             Step.fromInput input
 
-        current =
-            { idx = 0, step = Array.get 0 steps }
+        step =
+            Array.get 0 steps
 
         playerColor =
-            current.step
+            step
                 |> Maybe.map .position
                 |> Maybe.map Position.sideToMove
                 |> Maybe.withDefault PieceColor.white
     in
     { arrows = []
     , board = Board.none
-    , current = current
+    , idx = 0
     , marks = Dict.empty
-    , mode = Marking
+    , mode = Moving
     , playerColor = playerColor
     , prompt = input.prompt
     , selected = Nothing
+    , step = step
     , steps = steps
     , viewCtx =
         ViewContext.init

@@ -5,6 +5,10 @@ import Board
 import Dict
 import Mark
 import Model exposing (..)
+import Move
+import Notation
+import Piece exposing (Piece)
+import Position
 import Square exposing (Square)
 import ViewContext exposing (ViewContext)
 
@@ -16,7 +20,14 @@ update msg m =
             ( m, Cmd.none )
 
         Clear ->
-            ( { m | arrows = [], marks = Dict.empty, selected = Nothing }, Cmd.none )
+            ( { m
+                | arrows = []
+                , marks = Dict.empty
+                , selected = Nothing
+                , step = Array.get m.idx m.steps
+              }
+            , Cmd.none
+            )
 
         ClickSquare square ->
             case m.mode of
@@ -27,15 +38,15 @@ update msg m =
                     ( clickMarking m square, Cmd.none )
 
                 Moving ->
-                    ( m, Cmd.none )
+                    ( clickMoving m square, Cmd.none )
 
         NextMove ->
-            min (m.current.idx + 1) (Array.length m.steps - 1)
+            min (m.idx + 1) (Array.length m.steps - 1)
                 |> updateStep m
                 |> (\m_ -> ( m_, Cmd.none ))
 
         PrevMove ->
-            max 0 (m.current.idx - 1)
+            max 0 (m.idx - 1)
                 |> updateStep m
                 |> (\m_ -> ( m_, Cmd.none ))
 
@@ -50,6 +61,9 @@ update msg m =
 clickArrowing : Model -> Square -> Model
 clickArrowing m square =
     case m.selected of
+        Nothing ->
+            { m | selected = Just square }
+
         Just sq ->
             if sq == square then
                 { m | selected = Nothing }
@@ -67,12 +81,7 @@ clickArrowing m square =
                         else
                             Arrow sq square :: m.arrows
                 in
-                Arrow sq square
-                    :: m.arrows
-                    |> (\xs -> { m | selected = Nothing, arrows = arrows_ })
-
-        Nothing ->
-            { m | selected = Just square }
+                { m | selected = Nothing, arrows = arrows_ }
 
 
 clickMarking : Model -> Square -> Model
@@ -96,10 +105,43 @@ clickMarking m square =
     { m | marks = marks_ }
 
 
+clickMoving : Model -> Square -> Model
+clickMoving m square =
+    case m.step of
+        Nothing ->
+            m
+
+        Just step ->
+            case m.selected of
+                Nothing ->
+                    Position.pieceOn square step.position
+                        |> Maybe.map (\_ -> { m | selected = Just square })
+                        |> Maybe.withDefault m
+
+                Just src ->
+                    if Square.toInt src == Square.toInt square then
+                        { m | selected = Nothing, prompt = "same" }
+
+                    else
+                        Position.movesFrom src step.position
+                            |> List.filter (\mv -> Move.to mv == square)
+                            |> List.head
+                            |> Maybe.map
+                                (\mv ->
+                                    { move = Nothing
+                                    , number = 0
+                                    , position = Position.doMove mv step.position
+                                    , prevMove = Just { move = mv, san = "" }
+                                    }
+                                )
+                            |> Maybe.map (\s -> { m | selected = Nothing, step = Just s })
+                            |> Maybe.withDefault { m | selected = Nothing }
+
+
 updateStep : Model -> Int -> Model
-updateStep m idx =
-    Array.get idx m.steps
-        |> (\step_ -> { m | current = { idx = idx, step = step_ } })
+updateStep m idx_ =
+    Array.get idx_ m.steps
+        |> (\step_ -> { m | idx = idx_, step = step_ })
         |> (\m_ -> { m_ | arrows = [], marks = Dict.empty })
 
 

@@ -38,12 +38,12 @@ view m =
 -}
 board_ : Model -> Html Msg
 board_ m =
-    case m.current.step of
+    case m.step of
         Nothing ->
             Html.div [] []
 
         Just s ->
-            [ coords, indicator, squares s, marks, pieces s, arrows ]
+            [ coords, indicator, squares s, marks, pieces s, arrows, selected ]
                 |> List.map (\fn -> fn m)
                 |> Html.div
                     [ HtmlAttrs.style "position" "relative"
@@ -110,7 +110,7 @@ logStep m idx step =
                 "..."
 
         text =
-            if idx < m.current.idx then
+            if idx < m.idx then
                 step.move |> Maybe.map .san |> Maybe.withDefault ""
 
             else if idx == (Array.length m.steps - 1) then
@@ -120,7 +120,7 @@ logStep m idx step =
                 "???"
 
         selectedCss =
-            if idx == m.current.idx then
+            if idx == m.idx then
                 [ HtmlAttrs.style "width" "0px"
                 , HtmlAttrs.style "height" "0px"
                 , HtmlAttrs.style "border-top" "12px solid transparent"
@@ -245,29 +245,10 @@ arrows m =
                         []
                     ]
                 ]
-
-        selection =
-            case m.selected of
-                Nothing ->
-                    Svg.g [] []
-
-                Just sq ->
-                    sq
-                        |> centerPoint
-                        |> (\{ x, y } ->
-                                Svg.rect
-                                    [ SvgAttrs.x (x - 0.5 |> String.fromFloat)
-                                    , SvgAttrs.y (y - 0.5 |> String.fromFloat)
-                                    , SvgAttrs.width "1"
-                                    , SvgAttrs.height "1"
-                                    , SvgAttrs.fill arrowColor
-                                    ]
-                                    []
-                           )
     in
     m.arrows
         |> List.map arrow_
-        |> (\xs -> Svg.svg attrs (defs :: selection :: xs))
+        |> (\xs -> Svg.svg attrs (defs :: xs))
 
 
 arrow_ : Arrow -> Html Msg
@@ -290,11 +271,6 @@ arrow_ arrow =
         , SvgAttrs.markerEnd "url(#arrowhead)"
         ]
         []
-
-
-arrowColor : String
-arrowColor =
-    "#003088"
 
 
 {-| COORDS
@@ -438,6 +414,51 @@ mark_ input square =
         ]
 
 
+{-| SELECTED
+-}
+selected : Model -> Html Msg
+selected m =
+    case m.selected of
+        Nothing ->
+            Html.div [] []
+
+        Just sq ->
+            modeColor m
+                |> Maybe.map (selected_ sq)
+                |> Maybe.withDefault (Html.div [] [])
+
+
+selected_ : Square -> String -> Html Msg
+selected_ sq color =
+    let
+        { x, y } =
+            sq |> centerPoint
+    in
+    Html.div
+        [ HtmlAttrs.style "width" "100%"
+        , HtmlAttrs.style "height" "100%"
+        , HtmlAttrs.style "position" "absolute"
+        , HtmlAttrs.style "top" "0"
+        , HtmlAttrs.style "left" "0"
+        , HtmlAttrs.style "pointer-events" "none"
+        ]
+        [ Svg.svg
+            [ SvgAttrs.viewBox "0 0 8 8"
+            , SvgAttrs.opacity "0.6"
+            , SvgAttrs.z "3"
+            ]
+            [ Svg.rect
+                [ SvgAttrs.x (x - 0.5 |> String.fromFloat)
+                , SvgAttrs.y (y - 0.5 |> String.fromFloat)
+                , SvgAttrs.width "1"
+                , SvgAttrs.height "1"
+                , SvgAttrs.fill color
+                ]
+                []
+            ]
+        ]
+
+
 {-| PIECES
 -}
 pieces : Step -> Model -> Html Msg
@@ -514,6 +535,35 @@ square_ step m sq =
     Html.button
         (btnAttrs ++ moveAttrs)
         []
+
+
+
+----------------------------------------------------------
+-- STYLING
+----------------------------------------------------------
+
+
+modeColor : Model -> Maybe String
+modeColor m =
+    case m.mode of
+        Arrowing ->
+            Just arrowColor
+
+        Moving ->
+            Just moveColor
+
+        _ ->
+            Nothing
+
+
+arrowColor : String
+arrowColor =
+    "#003088"
+
+
+moveColor : String
+moveColor =
+    "#e68f00"
 
 
 
