@@ -1,8 +1,5 @@
 module Size exposing (..)
 
-import Pair
-import StringEx
-
 
 type alias Size =
     { width : Float

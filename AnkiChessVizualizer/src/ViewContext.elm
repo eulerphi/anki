@@ -89,11 +89,11 @@ makeGetViewportCmd vc =
     Task.perform (vc.envelope << ViewportChanged) Browser.Dom.getViewport
 
 
+magic : Float
+magic =
+    30
+
+
 updateOnSizeChanged : Browser.Dom.Viewport -> ViewContext msg -> ViewContext msg
-updateOnSizeChanged { scene, viewport } vc =
-    { vc
-        | size =
-            Size
-                (max scene.width viewport.width)
-                (max scene.height viewport.height)
-    }
+updateOnSizeChanged { viewport } vc =
+    { vc | size = Size (viewport.width - magic) (viewport.height - magic) }
