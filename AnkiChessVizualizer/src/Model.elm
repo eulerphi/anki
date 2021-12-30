@@ -23,6 +23,14 @@ type Mark
     | Red
 
 
+type alias State =
+    { arrows : List Arrow
+    , idx : Int
+    , marks : Dict Int Mark
+    , step : Maybe Step
+    }
+
+
 type alias Model =
     { arrows : List Arrow
     , board : Board
@@ -53,9 +61,11 @@ type alias Pos =
 type Msg
     = NoOp
     | Clear
-    | ClickSquare Square
+    | Redo
+    | Undo
     | NextMove
     | PrevMove
+    | ClickSquare Square
     | SelectMode Mode
     | ViewCtxMsg ViewContext.Msg
 

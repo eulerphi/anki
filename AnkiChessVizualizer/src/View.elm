@@ -102,22 +102,24 @@ log m =
 logStep : Model -> Int -> Step -> Html Msg
 logStep m idx step =
     let
-        numberSuffix =
-            if Position.sideToMove step.position == PieceColor.white then
+        num =
+            (if Position.sideToMove step.position == PieceColor.white then
                 ".  "
 
-            else
+             else
                 "..."
+            )
+                |> (++) (String.fromInt step.number)
 
-        text =
+        ( num_, text ) =
             if idx < m.idx then
-                step.move |> Maybe.map .san |> Maybe.withDefault ""
+                ( num, step.move |> Maybe.map .san |> Maybe.withDefault "" )
 
             else if idx == (Array.length m.steps - 1) then
-                "✅"
+                ( "", "✅" )
 
             else
-                "???"
+                ( num, "???" )
 
         selectedCss =
             if idx == m.idx then
@@ -134,21 +136,68 @@ logStep m idx step =
     Html.tr
         []
         [ Html.td
-            [ HtmlAttrs.style "width" "10%" ]
+            [ HtmlAttrs.style "width" "15%" ]
             [ Html.div selectedCss [] ]
         , Html.td
-            [ HtmlAttrs.style "width" "10%" ]
-            [ Html.span [] [ Html.text (String.fromInt step.number) ]
-            , Html.span [] [ Html.text numberSuffix ]
-            ]
+            [ HtmlAttrs.style "width" "25%" ]
+            [ Html.text num_ ]
         , Html.td
-            [ HtmlAttrs.style "width" "80%" ]
-            [ Html.span [] [ Html.text text ] ]
+            [ HtmlAttrs.style "width" "60%" ]
+            [ Html.text text ]
         ]
 
 
 {-| SIDEBARS
 -}
+leftBar : Model -> Html Msg
+leftBar m =
+    [ sidebarButton m.board.buttonSize PrevMove Images.prevUri False
+    , sidebarButton m.board.buttonSize NextMove Images.nextUri False
+    ]
+        |> Html.div []
+        |> sidebar m [ HtmlAttrs.style "left" "5px" ]
+
+
+rightBar : Model -> Html Msg
+rightBar m =
+    let
+        moveUri =
+            m.step
+                |> Maybe.map (\s -> Position.sideToMove s.position)
+                |> Maybe.withDefault PieceColor.white
+                |> (\c ->
+                        if c == PieceColor.white then
+                            Images.pieceUri 'K'
+
+                        else
+                            Images.pieceUri 'k'
+                   )
+
+        btnFn =
+            sidebarButton m.board.buttonSize
+
+        top =
+            [ btnFn Undo Images.undoUri False
+            , btnFn Redo Images.redoUri False
+            , btnFn Clear Images.clearUri False
+            ]
+
+        bot =
+            [ ( moveUri, Moving )
+            , ( Images.arrowsUri, Arrowing )
+            , ( Images.circlesUri, Marking )
+            ]
+                |> List.map (\( text, mode ) -> btnFn (SelectMode mode) text (m.mode == mode))
+
+        hr =
+            Html.hr [ HtmlAttrs.style "margin" "20px 0px" ] []
+    in
+    top
+        ++ (hr :: bot)
+        |> Html.div []
+        |> sidebar m [ HtmlAttrs.style "right" "5px" ]
+
+
 sidebar : Model -> List (Html.Attribute Msg) -> Html Msg -> Html Msg
 sidebar m attrs child =
     [ HtmlAttrs.style "position" "fixed"
@@ -161,52 +210,40 @@ sidebar m attrs child =
         |> (\a -> Html.div a [ child ])
 
 
-sidebarButton : Msg -> String -> Bool -> Html Msg
-sidebarButton msg text isSelected =
+sidebarButton : Float -> Msg -> String -> Bool -> Html Msg
+sidebarButton size msg imageUri isSelected =
     let
         css =
-            [ HtmlAttrs.style "display" "block"
+            [ HtmlAttrs.style "display" "flex"
+            , HtmlAttrs.style "justify-content" "center"
+            , HtmlAttrs.style "align-items" "center"
+            , HtmlAttrs.style "background-color" "transparent"
+            , HtmlAttrs.style "border-width" "4px"
             , HtmlAttrs.style "margin" "10px 0px"
-            , HtmlAttrs.style "width" "100%"
-            , HtmlAttrs.style "min-width" "48px"
-            , HtmlAttrs.style "height" "48px"
-            , HtmlAttrs.style "font-size" "24px"
+            , HtmlAttrs.style "width" (CssEx.px size)
+            , HtmlAttrs.style "height" (CssEx.px size)
+            , HtmlAttrs.style "border-radius" "50%"
+            , HtmlAttrs.style "padding" "4px"
             , Html.Events.onClick msg
             ]
 
         css_ =
             if isSelected then
-                HtmlAttrs.style "background-color" "blue" :: css
+                HtmlAttrs.style "border-color" "orange" :: css
 
             else
-                css
+                HtmlAttrs.style "border-color" "black" :: css
     in
     Html.button
         css_
-        [ Html.text text ]
-
-
-leftBar : Model -> Html Msg
-leftBar m =
-    [ sidebarButton PrevMove "<" False
-    , sidebarButton NextMove ">" False
-    ]
-        |> Html.div []
-        |> sidebar m [ HtmlAttrs.style "left" "5px" ]
-
-
-rightBar : Model -> Html Msg
-rightBar m =
-    [ ( "AR", Arrowing )
-    , ( "MA", Marking )
-    , ( "MO", Moving )
-    ]
-        |> List.map
-            (\( text, mode ) -> sidebarButton (SelectMode mode) text (m.mode == mode))
-        |> (::) (Html.hr [ HtmlAttrs.style "margin" "20px 0px" ] [])
-        |> (::) (sidebarButton Clear "x" False)
-        |> Html.div []
-        |> sidebar m [ HtmlAttrs.style "right" "5px" ]
+        [ Html.div
+            [ HtmlAttrs.style "width" "90%"
+            , HtmlAttrs.style "height" "90%"
+            , HtmlAttrs.style "background-image" imageUri
+            , HtmlAttrs.style "background-size" "cover"
+            ]
+            []
+        ]
 
 
 

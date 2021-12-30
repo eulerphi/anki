@@ -5,6 +5,7 @@ import ViewContext exposing (ViewContext)
 
 type alias Board =
     { boardSize : Float
+    , buttonSize : Float
     , headerHeight : Float
     , panelHeight : Float
     , panelWidth : Float
@@ -44,18 +45,20 @@ fromViewContext board vc =
         squareSize =
             boardSize / 8
     in
-    { board
-        | boardSize = boardSize
-        , headerHeight = headerHeight
-        , panelHeight = panelHeight
-        , panelWidth = panelWidth
-        , squareSize = squareSize
+    { boardSize = boardSize
+    , buttonSize = 0.8 * squareSize
+    , headerHeight = headerHeight
+    , panelHeight = panelHeight
+    , panelWidth = panelWidth
+    , squareSize = squareSize
+    , style = ""
     }
 
 
 none : Board
 none =
     { boardSize = 0
+    , buttonSize = 0
     , headerHeight = 0
     , panelWidth = 0
     , panelHeight = 0

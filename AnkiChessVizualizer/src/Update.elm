@@ -6,8 +6,7 @@ import Dict
 import Mark
 import Model exposing (..)
 import Move
-import Notation
-import Piece exposing (Piece)
+import Piece
 import Position
 import Square exposing (Square)
 import ViewContext exposing (ViewContext)
@@ -17,6 +16,12 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg m =
     case msg of
         NoOp ->
+            ( m, Cmd.none )
+
+        Redo ->
+            ( m, Cmd.none )
+
+        Undo ->
             ( m, Cmd.none )
 
         Clear ->
@@ -115,8 +120,15 @@ clickMoving m square =
             case m.selected of
                 Nothing ->
                     Position.pieceOn square step.position
-                        |> Maybe.map (\_ -> { m | selected = Just square })
-                        |> Maybe.withDefault m
+                        |> Maybe.map (\p -> Piece.color p == Position.sideToMove step.position)
+                        |> Maybe.withDefault False
+                        |> (\canSelect ->
+                                if canSelect then
+                                    { m | selected = Just square }
+
+                                else
+                                    m
+                           )
 
                 Just src ->
                     if Square.toInt src == Square.toInt square then
