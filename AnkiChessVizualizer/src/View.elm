@@ -232,13 +232,13 @@ sidebarButton size msg imageUri isSelected =
                 HtmlAttrs.style "border-color" "orange" :: css
 
             else
-                HtmlAttrs.style "border-color" "black" :: css
+                HtmlAttrs.style "border-color" "gray" :: css
     in
     Html.button
         css_
         [ Html.div
-            [ HtmlAttrs.style "width" "90%"
-            , HtmlAttrs.style "height" "90%"
+            [ HtmlAttrs.style "width" "80%"
+            , HtmlAttrs.style "height" "80%"
             , HtmlAttrs.style "background-image" imageUri
             , HtmlAttrs.style "background-size" "cover"
             ]
