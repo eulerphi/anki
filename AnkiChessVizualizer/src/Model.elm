@@ -44,7 +44,7 @@ fromInput input =
     in
     { idx = 0
     , layout = Board.none
-    , mode = Marking
+    , mode = Moving
     , playerColor = playerColor
     , prompt = input.prompt
     , selected = Nothing
@@ -107,7 +107,8 @@ updateIndex m idx_ =
 
         Just step_ ->
             step_
-                |> State.updateStep m.states.present
+                |> State.updateStep (state m)
+                |> State.clearAnnotations
                 |> updateState m
                 |> (\m_ -> { m_ | idx = idx_ })
 

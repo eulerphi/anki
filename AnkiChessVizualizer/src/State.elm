@@ -7,6 +7,11 @@ import Step exposing (Step)
 import Types exposing (..)
 
 
+clearAnnotations : State -> State
+clearAnnotations s =
+    { s | arrows = [], marks = Dict.empty }
+
+
 fromStep : Step -> State
 fromStep step =
     { arrows = []
@@ -54,4 +59,4 @@ updateMark state sq =
 
 updateStep : State -> Step -> State
 updateStep s step_ =
-    { s | arrows = [], marks = Dict.empty, step = step_ }
+    { s | step = step_ }
