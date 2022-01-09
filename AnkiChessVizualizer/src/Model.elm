@@ -1,109 +1,136 @@
 module Model exposing (..)
 
-import Array exposing (Array)
-import Board exposing (Board)
-import Dict exposing (Dict)
+import Array
+import Board
 import Input exposing (Input)
-import PieceColor exposing (PieceColor)
-import Position
+import Piece
+import Position exposing (Position)
 import Square exposing (Square)
+import State
 import Step exposing (Step)
+import Types exposing (..)
+import UndoList
 import ViewContext exposing (ViewContext)
 
 
-type alias Arrow =
-    { src : Square
-    , dst : Square
-    }
+canSelectPiece : Model2 -> Square -> Bool
+canSelectPiece m sq =
+    Position.pieceOn sq (position m)
+        |> Maybe.map (\p -> Piece.color p == Position.sideToMove (position m))
+        |> Maybe.withDefault False
 
 
-type Mark
-    = NoMark
-    | Green
-    | Red
+clearHistory : Model2 -> Model2
+clearHistory m =
+    { m | states = UndoList.fresh m.states.present }
 
 
-type alias State =
-    { arrows : List Arrow
-    , idx : Int
-    , marks : Dict Int Mark
-    , step : Maybe Step
-    }
+clearSelection : Model2 -> Model2
+clearSelection m =
+    { m | selected = Nothing }
 
 
-type alias Model =
-    { arrows : List Arrow
-    , board : Board
-    , idx : Int
-    , marks : Dict Int Mark
-    , mode : Mode
-    , playerColor : PieceColor
-    , prompt : String
-    , selected : Maybe Square
-    , step : Maybe Step
-    , steps : Array Step
-    , viewCtx : ViewContext Msg
-    }
-
-
-type alias Point =
-    { x : Float
-    , y : Float
-    }
-
-
-type alias Pos =
-    { rank : Int
-    , file : Int
-    }
-
-
-type Msg
-    = NoOp
-    | Clear
-    | Redo
-    | Undo
-    | NextMove
-    | PrevMove
-    | ClickSquare Square
-    | SelectMode Mode
-    | ViewCtxMsg ViewContext.Msg
-
-
-type Mode
-    = Arrowing
-    | Marking
-    | Moving
-
-
-fromInput : Input -> Model
+fromInput : Input -> Model2
 fromInput input =
     let
         steps =
             Step.fromInput input
 
-        step =
-            Array.get 0 steps
+        s =
+            Array.get 0 steps |> Maybe.withDefault Step.initial
 
         playerColor =
-            step
-                |> Maybe.map .position
-                |> Maybe.map Position.sideToMove
-                |> Maybe.withDefault PieceColor.white
+            s.position |> Position.sideToMove
     in
-    { arrows = []
-    , board = Board.none
-    , idx = 0
-    , marks = Dict.empty
-    , mode = Moving
+    { idx = 0
+    , layout = Board.none
+    , mode = Marking
     , playerColor = playerColor
     , prompt = input.prompt
     , selected = Nothing
-    , step = step
     , steps = steps
+    , states = UndoList.fresh (State.fromStep s)
     , viewCtx =
         ViewContext.init
             { devicePixelRatio = input.devicePixelRatio
             , envelope = ViewCtxMsg
             }
     }
+
+
+position : Model2 -> Position
+position m =
+    step m |> .position
+
+
+redo : Model2 -> Model2
+redo m =
+    { m | states = UndoList.redo m.states }
+
+
+state : Model2 -> State
+state m =
+    m.states.present
+
+
+step : Model2 -> Step
+step m =
+    state m |> .step
+
+
+fromModel2 : Model2 -> Model
+fromModel2 m =
+    { arrows = state m |> .arrows
+    , board = m.layout
+    , idx = m.idx
+    , marks = state m |> .marks
+    , mode = m.mode
+    , playerColor = m.playerColor
+    , prompt = m.prompt
+    , selected = m.selected
+    , step = step m |> Just
+    , steps = m.steps
+    , viewCtx = m.viewCtx
+    }
+
+
+undo : Model2 -> Model2
+undo m =
+    { m | states = UndoList.undo m.states }
+
+
+updateIndex : Model2 -> Int -> Model2
+updateIndex m idx_ =
+    case Array.get idx_ m.steps of
+        Nothing ->
+            m
+
+        Just step_ ->
+            step_
+                |> State.updateStep m.states.present
+                |> updateState m
+
+
+updateSelection : Model2 -> Square -> Bool -> Model2
+updateSelection m sq canSelect =
+    if canSelect then
+        { m | selected = Just sq }
+
+    else
+        m
+
+
+updateState : Model2 -> State -> Model2
+updateState m state_ =
+    if m.states.present /= state_ then
+        { m | states = UndoList.new state_ m.states }
+
+    else
+        m
+
+
+updateViewContext : Model2 -> ViewContext Msg -> Model2
+updateViewContext m vc_ =
+    vc_
+        |> Board.fromViewContext m.layout
+        |> (\b_ -> { m | layout = b_, viewCtx = vc_ })

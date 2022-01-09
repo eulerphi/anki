@@ -1,58 +1,50 @@
 module Update exposing (..)
 
 import Array
-import Board
-import Dict
-import Mark
-import Model exposing (..)
+import Model
 import Move
-import Piece
 import Position
 import Square exposing (Square)
-import ViewContext exposing (ViewContext)
+import State
+import Step
+import Types exposing (..)
+import ViewContext
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+update : Msg -> Model2 -> ( Model2, Cmd Msg )
 update msg m =
     case msg of
         NoOp ->
             ( m, Cmd.none )
 
         Redo ->
-            ( m, Cmd.none )
+            ( Model.redo m, Cmd.none )
 
         Undo ->
-            ( m, Cmd.none )
+            ( Model.undo m, Cmd.none )
 
         Clear ->
-            ( { m
-                | arrows = []
-                , marks = Dict.empty
-                , selected = Nothing
-                , step = Array.get m.idx m.steps
-              }
-            , Cmd.none
-            )
+            ( Model.updateIndex m m.idx, Cmd.none )
 
-        ClickSquare square ->
+        ClickSquare sq ->
             case m.mode of
                 Arrowing ->
-                    ( clickArrowing m square, Cmd.none )
+                    ( clickArrow m sq, Cmd.none )
 
                 Marking ->
-                    ( clickMarking m square, Cmd.none )
+                    ( clickMark m sq, Cmd.none )
 
                 Moving ->
-                    ( clickMoving m square, Cmd.none )
+                    ( clickMove m sq, Cmd.none )
 
         NextMove ->
             min (m.idx + 1) (Array.length m.steps - 1)
-                |> updateStep m
+                |> Model.updateIndex m
                 |> (\m_ -> ( m_, Cmd.none ))
 
         PrevMove ->
             max 0 (m.idx - 1)
-                |> updateStep m
+                |> Model.updateIndex m
                 |> (\m_ -> ( m_, Cmd.none ))
 
         SelectMode mode ->
@@ -60,105 +52,50 @@ update msg m =
 
         ViewCtxMsg subMsg ->
             ViewContext.update subMsg m.viewCtx
-                |> (\( vc_, cmd_ ) -> ( vc_ |> updateViewContext m, cmd_ ))
+                |> Tuple.mapFirst (Model.updateViewContext m)
 
 
-clickArrowing : Model -> Square -> Model
-clickArrowing m square =
+clickArrow : Model2 -> Square -> Model2
+clickArrow m sq =
     case m.selected of
         Nothing ->
-            { m | selected = Just square }
+            Model.updateSelection m sq True
 
-        Just sq ->
-            if sq == square then
-                { m | selected = Nothing }
-
-            else
-                let
-                    ( haves, havenots ) =
-                        m.arrows
-                            |> List.partition (\a -> a.src == sq && a.dst == square)
-
-                    arrows_ =
-                        if List.length haves > 0 then
-                            havenots
-
-                        else
-                            Arrow sq square :: m.arrows
-                in
-                { m | selected = Nothing, arrows = arrows_ }
-
-
-clickMarking : Model -> Square -> Model
-clickMarking m square =
-    let
-        key =
-            Square.toInt square
-
-        val =
-            Dict.get key m.marks
-                |> Maybe.withDefault NoMark
-                |> Mark.next
-
-        marks_ =
-            if val /= NoMark then
-                Dict.insert key val m.marks
+        Just src ->
+            if sq == src then
+                Model.clearSelection m
 
             else
-                Dict.remove key m.marks
-    in
-    { m | marks = marks_ }
+                Arrow src sq
+                    |> State.updateArrow (Model.state m)
+                    |> Model.updateState m
+                    |> Model.clearSelection
 
 
-clickMoving : Model -> Square -> Model
-clickMoving m square =
-    case m.step of
+clickMark : Model2 -> Square -> Model2
+clickMark m sq =
+    State.updateMark (Model.state m) sq
+        |> Model.updateState m
+
+
+clickMove : Model2 -> Square -> Model2
+clickMove m sq =
+    case m.selected of
         Nothing ->
-            m
+            Model.canSelectPiece m sq
+                |> Model.updateSelection m sq
 
-        Just step ->
-            case m.selected of
-                Nothing ->
-                    Position.pieceOn square step.position
-                        |> Maybe.map (\p -> Piece.color p == Position.sideToMove step.position)
-                        |> Maybe.withDefault False
-                        |> (\canSelect ->
-                                if canSelect then
-                                    { m | selected = Just square }
+        Just src ->
+            if src == sq then
+                Model.clearSelection m
 
-                                else
-                                    m
-                           )
-
-                Just src ->
-                    if Square.toInt src == Square.toInt square then
-                        { m | selected = Nothing }
-
-                    else
-                        Position.movesFrom src step.position
-                            |> List.filter (\mv -> Move.to mv == square)
-                            |> List.head
-                            |> Maybe.map
-                                (\mv ->
-                                    { move = Nothing
-                                    , number = 0
-                                    , position = Position.doMove mv step.position
-                                    , prevMove = Just { move = mv, san = "" }
-                                    }
-                                )
-                            |> Maybe.map (\s -> { m | selected = Nothing, step = Just s })
-                            |> Maybe.withDefault { m | selected = Nothing }
-
-
-updateStep : Model -> Int -> Model
-updateStep m idx_ =
-    Array.get idx_ m.steps
-        |> (\step_ -> { m | idx = idx_, step = step_ })
-        |> (\m_ -> { m_ | arrows = [], marks = Dict.empty })
-
-
-updateViewContext : Model -> ViewContext Msg -> Model
-updateViewContext m vc_ =
-    vc_
-        |> Board.fromViewContext m.board
-        |> (\b_ -> { m | board = b_, viewCtx = vc_ })
+            else
+                Position.movesFrom src (Model.position m)
+                    |> List.filter (\mv -> Move.to mv == sq)
+                    -- TODO : handle picking pawn promotion move
+                    |> List.head
+                    |> Maybe.map (Model.step m |> Step.doMove)
+                    |> Maybe.map (Model.state m |> State.updateStep)
+                    |> Maybe.withDefault (Model.state m)
+                    |> Model.updateState m
+                    |> Model.clearSelection

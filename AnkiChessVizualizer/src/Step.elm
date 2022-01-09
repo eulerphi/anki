@@ -22,6 +22,24 @@ type alias Step =
     }
 
 
+doMove : Step -> Move -> Step
+doMove step mv =
+    { move = Nothing
+    , number = -1
+    , position = Position.doMove mv step.position
+    , prevMove = Just { move = mv, san = "" }
+    }
+
+
+initial : Step
+initial =
+    { move = Nothing
+    , number = 0
+    , position = Position.initial
+    , prevMove = Nothing
+    }
+
+
 fromInput : Input -> Array Step
 fromInput input =
     Position.fromFen input.fen

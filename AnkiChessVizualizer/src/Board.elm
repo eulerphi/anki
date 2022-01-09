@@ -15,7 +15,7 @@ type alias Board =
 
 
 fromViewContext : Board -> ViewContext msg -> Board
-fromViewContext board vc =
+fromViewContext _ vc =
     let
         headerHeight =
             0.1 * vc.size.height

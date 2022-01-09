@@ -1,6 +1,6 @@
 module Mark exposing (..)
 
-import Model exposing (Mark(..))
+import Types exposing (Mark(..))
 
 
 next : Mark -> Mark

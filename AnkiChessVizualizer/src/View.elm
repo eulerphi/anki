@@ -8,7 +8,6 @@ import Html exposing (Html)
 import Html.Attributes as HtmlAttrs
 import Html.Events
 import Images
-import Model exposing (..)
 import Move
 import Piece
 import PieceColor
@@ -19,6 +18,7 @@ import SquareRank
 import Step exposing (Step)
 import Svg
 import Svg.Attributes as SvgAttrs
+import Types exposing (..)
 
 
 view : Model -> Html Msg
@@ -225,6 +225,7 @@ sidebarButton size msg imageUri isSelected =
             , HtmlAttrs.style "border-radius" "50%"
             , HtmlAttrs.style "padding" "4px"
             , Html.Events.onClick msg
+            , Html.Events.onDoubleClick NoOp
             ]
 
         css_ =
