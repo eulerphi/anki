@@ -109,6 +109,7 @@ updateIndex m idx_ =
             step_
                 |> State.updateStep m.states.present
                 |> updateState m
+                |> (\m_ -> { m_ | idx = idx_ })
 
 
 updateSelection : Model2 -> Square -> Bool -> Model2
