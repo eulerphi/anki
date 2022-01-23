@@ -43,9 +43,10 @@ elseif ($args[0] -eq "anki") {
     else {
         Write-Host "Building..."
         Build-Optimized
-
-        Write-Host "Deploying to '$path'..."
-        cp "build\app.js" "$path\_acv_v1.js" -Force
+        $version = (get-date).ToString("yyMMdd_mmss")
+        $name = "_acv_v1_$version.js"
+        Write-Host "Deploying '$name' to '$path'..."
+        cp "build\app.js" "$path\$name" -Force
         Write-Host "Success!"
     }
 }

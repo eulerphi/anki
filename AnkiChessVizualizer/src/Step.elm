@@ -22,6 +22,11 @@ type alias Step =
     }
 
 
+blackToMove : Step -> Bool
+blackToMove s =
+    not (whiteToMove s)
+
+
 doMove : Step -> Move -> Step
 doMove step mv =
     { move = Nothing
@@ -87,3 +92,8 @@ makeSteps number position prevMove sans =
             tail
                 |> Maybe.map (\t -> step :: t)
                 |> Maybe.withDefault []
+
+
+whiteToMove : Step -> Bool
+whiteToMove s =
+    Position.sideToMove s.position == PieceColor.white

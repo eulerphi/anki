@@ -21,7 +21,7 @@ fromViewContext _ vc =
             0.1 * vc.size.height
 
         footerHeight =
-            0.2 * vc.size.height
+            0.1 * vc.size.height
 
         minMarginWidths =
             100.0
@@ -37,7 +37,7 @@ fromViewContext _ vc =
         panelWidth =
             min
                 (0.4 * contentWidth)
-                (boardSize / 2)
+                (boardSize / 1.5)
 
         panelHeight =
             boardSize

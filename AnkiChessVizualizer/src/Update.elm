@@ -37,6 +37,14 @@ update msg m =
                 Moving ->
                     ( clickMove m sq, Cmd.none )
 
+        FirstMove ->
+            Model.updateIndex m 0
+                |> (\m_ -> ( m_, Cmd.none ))
+
+        LastMove ->
+            Model.updateIndex m (Array.length m.steps - 1)
+                |> (\m_ -> ( m_, Cmd.none ))
+
         NextMove ->
             min (m.idx + 1) (Array.length m.steps - 1)
                 |> Model.updateIndex m

@@ -29,13 +29,27 @@ type alias State =
     }
 
 
+type alias LogLine =
+    { white : LogItem
+    , black : LogItem
+    }
+
+
+type alias LogItem =
+    { selected : Bool
+    , text : Maybe String
+    }
+
+
 type alias Model2 =
-    { idx : Int
+    { answer : String
+    , idx : Int
     , layout : Board
     , mode : Mode
     , playerColor : PieceColor
     , prompt : String
     , selected : Maybe Square
+    , showAnswer : Bool
     , states : UndoList State
     , steps : Array Step
     , viewCtx : ViewContext Msg
@@ -44,6 +58,7 @@ type alias Model2 =
 
 type alias Model =
     { arrows : List Arrow
+    , answer : String
     , board : Board
     , idx : Int
     , marks : Dict Int Mark
@@ -51,6 +66,7 @@ type alias Model =
     , playerColor : PieceColor
     , prompt : String
     , selected : Maybe Square
+    , showAnswer : Bool
     , step : Maybe Step
     , steps : Array Step
     , viewCtx : ViewContext Msg
@@ -74,6 +90,8 @@ type Msg
     | Clear
     | Redo
     | Undo
+    | FirstMove
+    | LastMove
     | NextMove
     | PrevMove
     | ClickSquare Square

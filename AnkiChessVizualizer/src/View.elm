@@ -1,6 +1,5 @@
 module View exposing (view)
 
-import Array
 import Board exposing (Board)
 import CssEx
 import Dict
@@ -8,6 +7,7 @@ import Html exposing (Html)
 import Html.Attributes as HtmlAttrs
 import Html.Events
 import Images
+import Log
 import Move
 import Piece
 import PieceColor
@@ -23,7 +23,7 @@ import Types exposing (..)
 
 view : Model -> Html Msg
 view m =
-    [ center, leftBar, rightBar ]
+    [ center, rightBar ]
         |> List.map (\fn -> fn m)
         |> Html.div []
 
@@ -61,7 +61,7 @@ board_ m =
 -}
 center : Model -> Html Msg
 center m =
-    [ log, board_ ]
+    [ panel, board_ ]
         |> List.map (\fn -> fn m)
         |> Html.div
             [ HtmlAttrs.style "height" (CssEx.px m.viewCtx.size.height)
@@ -72,92 +72,35 @@ center m =
             ]
 
 
-{-| LOG
+{-| PANEL
 -}
-log : Model -> Html Msg
-log m =
-    m.steps
-        |> Array.toList
-        |> List.indexedMap (logStep m)
-        |> Html.table
-            [ HtmlAttrs.style "border-collapse" "collapse" ]
-        |> (\x -> [ x ])
-        |> (::)
-            (Html.div
-                [ HtmlAttrs.style "border-bottom" "2px solid gray"
-                , HtmlAttrs.style "margin-bottom" "15px"
-                ]
-                [ Html.text m.prompt ]
-            )
-        |> Html.div
-            [ HtmlAttrs.style "height" (CssEx.px m.board.panelHeight)
-            , HtmlAttrs.style "width" (CssEx.px m.board.panelWidth)
-            , HtmlAttrs.style "border" "2px solid gray"
-            , HtmlAttrs.style "font-size" "24px"
-            , HtmlAttrs.style "vertical-align" "top"
-            , HtmlAttrs.style "padding" "0px 20px"
+panel : Model -> Html Msg
+panel m =
+    Html.div
+        [ HtmlAttrs.style "height" (CssEx.px m.board.panelHeight)
+        , HtmlAttrs.style "width" (CssEx.px m.board.panelWidth)
+        , HtmlAttrs.style "overflow" "hidden"
+        , HtmlAttrs.style "display" "flex"
+        , HtmlAttrs.style "flex-direction" "column"
+        , HtmlAttrs.style "gap" "1rem"
+        ]
+        [ Html.div
+            [ HtmlAttrs.style "flex" "0 1 auto"
+            , HtmlAttrs.style "border" "1px solid gray"
+            , HtmlAttrs.style "border-radius" "3px"
             ]
-
-
-logStep : Model -> Int -> Step -> Html Msg
-logStep m idx step =
-    let
-        num =
-            (if Position.sideToMove step.position == PieceColor.white then
-                ".  "
-
-             else
-                "..."
-            )
-                |> (++) (String.fromInt step.number)
-
-        ( num_, text ) =
-            if idx < m.idx then
-                ( num, step.move |> Maybe.map .san |> Maybe.withDefault "" )
-
-            else if idx == (Array.length m.steps - 1) then
-                ( "", "✅" )
-
-            else
-                ( num, "???" )
-
-        selectedCss =
-            if idx == m.idx then
-                [ HtmlAttrs.style "width" "0px"
-                , HtmlAttrs.style "height" "0px"
-                , HtmlAttrs.style "border-top" "12px solid transparent"
-                , HtmlAttrs.style "border-bottom" "12px solid transparent"
-                , HtmlAttrs.style "border-left" "12px solid blue"
-                ]
-
-            else
-                []
-    in
-    Html.tr
-        []
-        [ Html.td
-            [ HtmlAttrs.style "width" "15%" ]
-            [ Html.div selectedCss [] ]
-        , Html.td
-            [ HtmlAttrs.style "width" "25%" ]
-            [ Html.text num_ ]
-        , Html.td
-            [ HtmlAttrs.style "width" "60%" ]
-            [ Html.text text ]
+            [ header m ]
+        , Html.div
+            [ HtmlAttrs.style "flex" "1 0 auto"
+            , HtmlAttrs.style "border" "1px solid gray"
+            , HtmlAttrs.style "border-radius" "3px"
+            ]
+            [ log m ]
         ]
 
 
 {-| SIDEBARS
 -}
-leftBar : Model -> Html Msg
-leftBar m =
-    [ sidebarButton m.board.buttonSize PrevMove Images.prevUri False
-    , sidebarButton m.board.buttonSize NextMove Images.nextUri False
-    ]
-        |> Html.div []
-        |> sidebar m [ HtmlAttrs.style "left" "5px" ]
-
-
 rightBar : Model -> Html Msg
 rightBar m =
     let
@@ -362,6 +305,40 @@ coord m attrs ( text, pos ) =
         [ Html.div [ HtmlAttrs.style "margin" "15%" ] [ Html.text text ] ]
 
 
+{-| HEADER
+-}
+header : Model -> Html Msg
+header m =
+    let
+        answer =
+            if String.isEmpty m.answer then
+                ""
+
+            else if m.showAnswer then
+                m.answer
+
+            else
+                "[...]"
+
+        cloze =
+            if String.isEmpty answer then
+                []
+
+            else
+                [ Html.hr [] []
+                , Html.div
+                    [ HtmlAttrs.style "color" "blue" ]
+                    [ Html.text answer ]
+                ]
+    in
+    Html.div
+        [ HtmlAttrs.style "padding" "0.5em"
+        , HtmlAttrs.style "white-space" "pre-wrap"
+        , HtmlAttrs.style "font-size" "1.5em"
+        ]
+        (Html.text m.prompt :: cloze)
+
+
 {-| INDICATOR
 -}
 indicator : Model -> Html Msg
@@ -394,6 +371,118 @@ indicator m =
             ]
             []
         ]
+
+
+{-| LOG
+-}
+log : Model -> Html Msg
+log m =
+    let
+        moves =
+            Log.toLines m
+                |> List.indexedMap logLine
+                |> List.foldr (++) []
+                |> Html.div
+                    [ HtmlAttrs.style "display" "flex"
+                    , HtmlAttrs.style "flex-flow" "row wrap"
+                    ]
+    in
+    Html.div
+        [ HtmlAttrs.style "height" "100%"
+        , HtmlAttrs.style "display" "flex"
+        , HtmlAttrs.style "flex-direction" "column"
+        ]
+        [ Html.div
+            [ HtmlAttrs.style "flex" "1 0 auto"
+            ]
+            [ moves ]
+        , Html.div
+            [ HtmlAttrs.style "flex" "0 1 auto" ]
+            [ logButtons ]
+        ]
+
+
+logButton : List (Html.Attribute Msg) -> String -> Html Msg
+logButton attrs text =
+    let
+        attrs_ =
+            attrs
+                ++ [ HtmlAttrs.style "background" "none"
+                   , HtmlAttrs.style "border" "none"
+                   ]
+    in
+    Html.button
+        attrs_
+        [ Html.text text ]
+
+
+logButtons : Html Msg
+logButtons =
+    Html.div
+        [ HtmlAttrs.style "display" "flex"
+        , HtmlAttrs.style "height" "3.5rem"
+        , HtmlAttrs.style "border-top" "1px solid rgb(217, 217, 217)"
+        ]
+        [ logButton
+            [ HtmlAttrs.style "flex" "1 1 20%"
+            , Html.Events.onClick FirstMove
+            ]
+            "<<"
+        , logButton
+            [ HtmlAttrs.style "flex" "1 1 30%"
+            , Html.Events.onClick PrevMove
+            ]
+            "<"
+        , logButton
+            [ HtmlAttrs.style "flex" "1 1 30%"
+            , Html.Events.onClick NextMove
+            ]
+            ">"
+        , logButton
+            [ HtmlAttrs.style "flex" "1 1 20%"
+            , Html.Events.onClick LastMove
+            ]
+            ">>"
+        ]
+
+
+logLine : Int -> LogLine -> List (Html Msg)
+logLine idx line =
+    [ Html.div
+        [ HtmlAttrs.style "display" "flex"
+        , HtmlAttrs.style "flex" "0 0 13%"
+        , HtmlAttrs.style "justify-content" "center"
+        , HtmlAttrs.style "line-height" "2.07em"
+        , HtmlAttrs.style "background-color" "#f7f6f5"
+        , HtmlAttrs.style "color" "#b3b3b3"
+        , HtmlAttrs.style "border-right" "1px solid #d9d9d9"
+        ]
+        [ idx + 1 |> String.fromInt |> Html.text ]
+    , logItem line.white
+    , logItem line.black
+    ]
+
+
+logItem : LogItem -> Html Msg
+logItem item =
+    let
+        backgroundColor =
+            if item.selected then
+                "rgb(198, 221, 243)"
+
+            else
+                "transparent"
+    in
+    Html.div
+        [ HtmlAttrs.style "display" "flex"
+        , HtmlAttrs.style "flex" "0 0 43%"
+        , HtmlAttrs.style "justify-content" "center"
+        , HtmlAttrs.style "font-size" "1.185em"
+        , HtmlAttrs.style "line-height" "2.07em"
+        , HtmlAttrs.style "color" "#4d4d4d"
+        , HtmlAttrs.style "background-color" backgroundColor
+        ]
+        [ Html.text (Maybe.withDefault "" item.text) ]
 
 
 {-| MARKS

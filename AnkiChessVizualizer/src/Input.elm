@@ -5,20 +5,22 @@ import Json.Encode as E
 
 
 type alias Input =
-    { devicePixelRatio : Float
-    , explanation : String
+    { answer : String
+    , devicePixelRatio : Float
     , fen : String
     , moves : List String
     , prompt : String
+    , showAnswer : Bool
     }
 
 
 type alias RawInput =
-    { devicePixelRatio : Float
-    , explanation : String
+    { answer : String
+    , devicePixelRatio : Float
     , fen : String
     , moves : String
     , prompt : String
+    , showAnswer : Bool
     }
 
 
@@ -26,32 +28,37 @@ decode : E.Value -> Input
 decode value =
     case D.decodeValue decoder value of
         Ok input ->
-            { devicePixelRatio = input.devicePixelRatio
-            , explanation = input.explanation
+            { answer = input.answer
+            , devicePixelRatio = input.devicePixelRatio
             , fen = input.fen
             , moves = input.moves |> parseMoves
             , prompt = input.prompt
+            , showAnswer = input.showAnswer
             }
 
         Err _ ->
-            { devicePixelRatio = 1.0
-            , explanation = ""
+            { answer = ""
+            , devicePixelRatio = 1.0
             , fen = ""
             , moves = []
             , prompt = "<Input-Malformed>"
+            , showAnswer = False
             }
 
 
 decoder : D.Decoder RawInput
 decoder =
-    D.map5 RawInput
+    D.map6 RawInput
+        (D.field "answer" D.string)
         (D.field "devicePixelRatio" D.float)
-        (D.field "explanation" D.string)
         (D.field "fen" D.string)
         (D.field "moves" D.string)
         (D.field "prompt" D.string)
+        (D.field "showAnswer" D.bool)
 
 
 parseMoves : String -> List String
 parseMoves moves =
-    moves |> String.split " "
+    moves
+        |> String.split " "
+        |> List.filter (not << String.isEmpty)

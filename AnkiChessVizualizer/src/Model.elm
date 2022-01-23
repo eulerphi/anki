@@ -42,12 +42,14 @@ fromInput input =
         playerColor =
             s.position |> Position.sideToMove
     in
-    { idx = 0
+    { answer = input.answer
+    , idx = 0
     , layout = Board.none
     , mode = Moving
     , playerColor = playerColor
     , prompt = input.prompt
     , selected = Nothing
+    , showAnswer = input.showAnswer
     , steps = steps
     , states = UndoList.fresh (State.fromStep s)
     , viewCtx =
@@ -81,6 +83,7 @@ step m =
 fromModel2 : Model2 -> Model
 fromModel2 m =
     { arrows = state m |> .arrows
+    , answer = m.answer
     , board = m.layout
     , idx = m.idx
     , marks = state m |> .marks
@@ -88,6 +91,7 @@ fromModel2 m =
     , playerColor = m.playerColor
     , prompt = m.prompt
     , selected = m.selected
+    , showAnswer = m.showAnswer
     , step = step m |> Just
     , steps = m.steps
     , viewCtx = m.viewCtx

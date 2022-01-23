@@ -1,0 +1,22 @@
+-Flip board for black
+    -override flipped board property?
+        -e.g. for cards that ask you to move your opponents piece(s)
+-Previous moves input
+-Scrollable log
+-Better UX for movement, marks, and arrows?
+    -Select squares and then select action?
+        -Maybe show additional colors after selecting action?
+            -This is optional interaction for the user
+        -e.g. selected sq1, sq2 would show actions:
+            -move (if valid)
+            -arrows: sq1 -> sq2
+            -marks (green)
+            -marks (red)
+        -e.g. selected sq1, sq2, s3 would show actions:
+            -arrows: sq1 -> sq2, sq2 -> sq3
+            -arrows (same src): sq1 -> sq2, sq1 -> sq3
+            -marks (green)
+            -marks (red)
+    -Multitouch for movement?
+    -Apple pen for marks and arrows?
+-Properly handle small screens
