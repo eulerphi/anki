@@ -43,7 +43,7 @@ board_ m =
             Html.div [] []
 
         Just s ->
-            [ coords, indicator, squares s, marks, pieces s, arrows, selected ]
+            [ coords, squares s, marks, pieces s, arrows, selected ]
                 |> List.map (\fn -> fn m)
                 |> Html.div
                     [ HtmlAttrs.style "position" "relative"

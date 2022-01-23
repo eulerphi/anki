@@ -3,6 +3,7 @@
         -e.g. for cards that ask you to move your opponents piece(s)
 -Previous moves input
 -Scrollable log
+-Simplify coords by only showing a1 and/or h8?
 -Better UX for movement, marks, and arrows?
     -Select squares and then select action?
         -Maybe show additional colors after selecting action?
