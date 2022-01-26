@@ -1,6 +1,3 @@
--Flip board for black
-    -override flipped board property?
-        -e.g. for cards that ask you to move your opponents piece(s)
 -Previous moves input
 -Scrollable log
 -Simplify coords by only showing a1 and/or h8?

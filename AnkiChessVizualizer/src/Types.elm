@@ -79,12 +79,6 @@ type alias Point =
     }
 
 
-type alias Pos =
-    { rank : Int
-    , file : Int
-    }
-
-
 type Msg
     = NoOp
     | Clear

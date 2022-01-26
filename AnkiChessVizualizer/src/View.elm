@@ -1,6 +1,5 @@
 module View exposing (view)
 
-import Board exposing (Board)
 import CssEx
 import Dict
 import Html exposing (Html)
@@ -11,6 +10,7 @@ import Log
 import Move
 import Piece
 import PieceColor
+import Point
 import Position
 import Square exposing (Square)
 import SquareFile
@@ -228,18 +228,22 @@ arrows m =
                 ]
     in
     m.arrows
-        |> List.map arrow_
+        |> List.map (arrow_ m)
         |> (\xs -> Svg.svg attrs (defs :: xs))
 
 
-arrow_ : Arrow -> Html Msg
-arrow_ arrow =
+arrow_ : Model -> Arrow -> Html Msg
+arrow_ m arrow =
     let
         src =
-            arrow.src |> centerPoint
+            arrow.src
+                |> Point.fromSquare m
+                |> Point.center
 
         dst =
-            arrow.dst |> centerPoint
+            arrow.dst
+                |> Point.fromSquare m
+                |> Point.center
     in
     Svg.line
         [ SvgAttrs.x1 (String.fromFloat src.x)
@@ -262,9 +266,12 @@ coords m =
         ranks =
             SquareRank.all
                 |> List.map (\r -> ( r, r ))
-                |> List.map (Tuple.mapBoth SquareRank.toString SquareRank.toIndex)
-                |> List.map (Tuple.mapSecond ((+) 1))
-                |> List.map (Tuple.mapSecond (\idx -> Pos idx 0))
+                |> List.map
+                    (Tuple.mapBoth
+                        SquareRank.toString
+                        SquareRank.toIndex
+                    )
+                |> List.map (Tuple.mapSecond (Point.forRankCoord m))
                 |> List.map
                     (coord m
                         [ HtmlAttrs.style "justify-content" "right"
@@ -275,9 +282,12 @@ coords m =
         files =
             SquareFile.all
                 |> List.map (\f -> ( f, f ))
-                |> List.map (Tuple.mapBoth SquareFile.toString SquareFile.toIndex)
-                |> List.map (Tuple.mapSecond ((+) 1))
-                |> List.map (Tuple.mapSecond (\idx -> Pos 0 idx))
+                |> List.map
+                    (Tuple.mapBoth
+                        SquareFile.toString
+                        SquareFile.toIndex
+                    )
+                |> List.map (Tuple.mapSecond (Point.forFileCoord m))
                 |> List.map
                     (coord m
                         [ HtmlAttrs.style "justify-content" "center"
@@ -288,14 +298,14 @@ coords m =
     Html.div [] (ranks ++ files)
 
 
-coord : Model -> List (Html.Attribute Msg) -> ( String, Pos ) -> Html Msg
-coord m attrs ( text, pos ) =
+coord : Model -> List (Html.Attribute Msg) -> ( String, Point ) -> Html Msg
+coord m attrs ( text, p ) =
     Html.div
         (attrs
             ++ [ HtmlAttrs.style "display" "flex"
                , HtmlAttrs.style "height" "12.5%"
                , HtmlAttrs.style "width" "12.5%"
-               , HtmlAttrs.style "transform" (translate m.board pos)
+               , HtmlAttrs.style "transform" (Point.translate m p)
                , HtmlAttrs.style "position" "absolute"
                , HtmlAttrs.style "top" "0"
                , HtmlAttrs.style "left" "0"
@@ -339,40 +349,6 @@ header m =
         (Html.text m.prompt :: cloze)
 
 
-{-| INDICATOR
--}
-indicator : Model -> Html Msg
-indicator m =
-    let
-        color =
-            if m.playerColor == PieceColor.white then
-                "white"
-
-            else
-                "black"
-    in
-    Html.div
-        [ HtmlAttrs.style "height" "12.5%"
-        , HtmlAttrs.style "width" "12.5%"
-        , HtmlAttrs.style "transform" (translate m.board { rank = 1, file = 9 })
-        , HtmlAttrs.style "position" "absolute"
-        , HtmlAttrs.style "top" "0"
-        , HtmlAttrs.style "left" "0"
-        , HtmlAttrs.style "justify-content" "center"
-        , HtmlAttrs.style "align-items" "center"
-        , HtmlAttrs.style "display" "flex"
-        ]
-        [ Html.div
-            [ HtmlAttrs.style "height" "50%"
-            , HtmlAttrs.style "width" "50%"
-            , HtmlAttrs.style "background-color" color
-            , HtmlAttrs.style "border" "4px solid black"
-            , HtmlAttrs.style "border-radius" "50%"
-            ]
-            []
-        ]
-
-
 {-| LOG
 -}
 log : Model -> Html Msg
@@ -409,6 +385,7 @@ logButton attrs text =
             attrs
                 ++ [ HtmlAttrs.style "background" "none"
                    , HtmlAttrs.style "border" "none"
+                   , Html.Events.onDoubleClick NoOp
                    ]
     in
     Html.button
@@ -496,11 +473,10 @@ marks m =
 
 
 mark_ : Model -> Square -> List (Html Msg)
-mark_ input square =
+mark_ m sq =
     let
         mark =
-            Square.toInt square
-                |> (\sq -> Dict.get sq input.marks)
+            Dict.get (Square.toInt sq) m.marks
                 |> Maybe.withDefault NoMark
 
         color =
@@ -521,7 +497,7 @@ mark_ input square =
         [ Html.div
             [ HtmlAttrs.style "height" "12.5%"
             , HtmlAttrs.style "width" "12.5%"
-            , HtmlAttrs.style "transform" (square |> toPos |> translate input.board)
+            , HtmlAttrs.style "transform" (Point.translateSquare m sq)
             , HtmlAttrs.style "position" "absolute"
             , HtmlAttrs.style "top" "0"
             , HtmlAttrs.style "left" "0"
@@ -551,15 +527,15 @@ selected m =
 
         Just sq ->
             modeColor m
-                |> Maybe.map (selected_ sq)
+                |> Maybe.map (selected_ m sq)
                 |> Maybe.withDefault (Html.div [] [])
 
 
-selected_ : Square -> String -> Html Msg
-selected_ sq color =
+selected_ : Model -> Square -> String -> Html Msg
+selected_ m sq color =
     let
         { x, y } =
-            sq |> centerPoint
+            Point.fromSquare m sq
     in
     Html.div
         [ HtmlAttrs.style "width" "100%"
@@ -575,8 +551,8 @@ selected_ sq color =
             , SvgAttrs.z "3"
             ]
             [ Svg.rect
-                [ SvgAttrs.x (x - 0.5 |> String.fromFloat)
-                , SvgAttrs.y (y - 0.5 |> String.fromFloat)
+                [ SvgAttrs.x (CssEx.px x)
+                , SvgAttrs.y (CssEx.px y)
                 , SvgAttrs.width "1"
                 , SvgAttrs.height "1"
                 , SvgAttrs.fill color
@@ -597,8 +573,8 @@ pieces step m =
 
 
 piece_ : Step -> Model -> Square -> List (Html Msg)
-piece_ step m square =
-    case Position.pieceOn square step.position of
+piece_ step m sq =
+    case Position.pieceOn sq step.position of
         Nothing ->
             []
 
@@ -611,7 +587,7 @@ piece_ step m square =
                         , HtmlAttrs.style "position" "absolute"
                         , HtmlAttrs.style "top" "0"
                         , HtmlAttrs.style "left" "0"
-                        , HtmlAttrs.style "transform" (toPos square |> translate m.board)
+                        , HtmlAttrs.style "transform" (Point.translateSquare m sq)
                         , HtmlAttrs.style "background-image" (p |> Piece.toChar |> Images.pieceUri)
                         , HtmlAttrs.style "background-repeat" "no-repeat"
                         , HtmlAttrs.style "background-size" "cover"
@@ -639,7 +615,7 @@ square_ step m sq =
             , HtmlAttrs.style "position" "absolute"
             , HtmlAttrs.style "top" "0"
             , HtmlAttrs.style "left" "0"
-            , HtmlAttrs.style "transform" (sq |> toPos |> translate m.board)
+            , HtmlAttrs.style "transform" (Point.translateSquare m sq)
             , HtmlAttrs.style "border" "none"
             , Html.Events.onClick (ClickSquare sq)
             , Html.Events.onDoubleClick NoOp
@@ -691,51 +667,3 @@ arrowColor =
 moveColor : String
 moveColor =
     "#e68f00"
-
-
-
-----------------------------------------------------------
--- UTILS
-----------------------------------------------------------
-
-
-centerPoint : Square -> Point
-centerPoint square =
-    { x =
-        Square.file square
-            |> SquareFile.toIndex
-            |> toFloat
-            |> (+) 0.5
-    , y =
-        Square.rank square
-            |> SquareRank.toIndex
-            |> (\r -> 7 - r)
-            |> toFloat
-            |> (+) 0.5
-    }
-
-
-toPos : Square -> Pos
-toPos square =
-    { rank = Square.rank square |> SquareRank.toIndex |> (+) 1
-    , file = Square.file square |> SquareFile.toIndex |> (+) 1
-    }
-
-
-translate : Board -> Pos -> String
-translate board pos =
-    let
-        x =
-            pos.file - 1 |> toFloat |> (*) board.squareSize
-
-        y =
-            8 - pos.rank |> toFloat |> (*) board.squareSize
-    in
-    String.join
-        ""
-        [ "translate("
-        , String.fromFloat x
-        , "px, "
-        , String.fromFloat y
-        , "px)"
-        ]
