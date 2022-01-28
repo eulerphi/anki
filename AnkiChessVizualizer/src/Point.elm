@@ -26,8 +26,8 @@ center p =
     { x = p.x + 0.5, y = p.y + 0.5 }
 
 
-fromSquare : Model -> Square -> Point
-fromSquare m sq =
+forSquare : Model -> Square -> Point
+forSquare m sq =
     let
         ( rank, file ) =
             ( Square.rank sq |> SquareRank.toIndex
@@ -73,4 +73,4 @@ translate m p =
 
 translateSquare : Model -> Square -> String
 translateSquare m sq =
-    fromSquare m sq |> translate m
+    forSquare m sq |> translate m

@@ -237,12 +237,12 @@ arrow_ m arrow =
     let
         src =
             arrow.src
-                |> Point.fromSquare m
+                |> Point.forSquare m
                 |> Point.center
 
         dst =
             arrow.dst
-                |> Point.fromSquare m
+                |> Point.forSquare m
                 |> Point.center
     in
     Svg.line
@@ -535,7 +535,7 @@ selected_ : Model -> Square -> String -> Html Msg
 selected_ m sq color =
     let
         { x, y } =
-            Point.fromSquare m sq
+            Point.forSquare m sq
     in
     Html.div
         [ HtmlAttrs.style "width" "100%"

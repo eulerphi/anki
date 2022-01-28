@@ -18,3 +18,4 @@
     -Multitouch for movement?
     -Apple pen for marks and arrows?
 -Properly handle small screens
+    -Properly size side buttons
