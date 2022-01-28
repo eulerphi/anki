@@ -9,6 +9,7 @@ type alias Input =
     , devicePixelRatio : Float
     , fen : String
     , moves : List String
+    , prevMoves : List String
     , prompt : String
     , showAnswer : Bool
     }
@@ -19,6 +20,7 @@ type alias RawInput =
     , devicePixelRatio : Float
     , fen : String
     , moves : String
+    , prevMoves : String
     , prompt : String
     , showAnswer : Bool
     }
@@ -32,6 +34,7 @@ decode value =
             , devicePixelRatio = input.devicePixelRatio
             , fen = input.fen
             , moves = input.moves |> parseMoves
+            , prevMoves = input.prevMoves |> parseMoves
             , prompt = input.prompt
             , showAnswer = input.showAnswer
             }
@@ -41,6 +44,7 @@ decode value =
             , devicePixelRatio = 1.0
             , fen = ""
             , moves = []
+            , prevMoves = []
             , prompt = "<Input-Malformed>"
             , showAnswer = False
             }
@@ -48,11 +52,12 @@ decode value =
 
 decoder : D.Decoder RawInput
 decoder =
-    D.map6 RawInput
+    D.map7 RawInput
         (D.field "answer" D.string)
         (D.field "devicePixelRatio" D.float)
         (D.field "fen" D.string)
         (D.field "moves" D.string)
+        (D.field "prevMoves" D.string)
         (D.field "prompt" D.string)
         (D.field "showAnswer" D.bool)
 

@@ -627,7 +627,7 @@ square_ step m sq =
                     [ HtmlAttrs.style "opacity" "0" ]
 
                 Just pm ->
-                    if Move.from pm.move == sq || Move.to pm.move == sq then
+                    if Move.from pm == sq || Move.to pm == sq then
                         [ HtmlAttrs.style "background-color" "yellow"
                         , HtmlAttrs.style "opacity" "0.3"
                         ]

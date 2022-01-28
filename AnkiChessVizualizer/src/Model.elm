@@ -4,6 +4,7 @@ import Array
 import Board
 import Input exposing (Input)
 import Piece
+import PieceColor exposing (PieceColor)
 import Position exposing (Position)
 import Square exposing (Square)
 import State
@@ -36,14 +37,17 @@ fromInput input =
         steps =
             Step.fromInput input
 
+        idx =
+            min (Array.length steps - 1) (List.length input.prevMoves)
+
         s =
-            Array.get 0 steps |> Maybe.withDefault Step.initial
+            Array.get idx steps |> Maybe.withDefault Step.initial
 
         playerColor =
             s.position |> Position.sideToMove
     in
     { answer = input.answer
-    , idx = 0
+    , idx = idx
     , layout = Board.none
     , mode = Moving
     , playerColor = playerColor
@@ -68,6 +72,13 @@ position m =
 redo : Model2 -> Model2
 redo m =
     { m | states = UndoList.redo m.states }
+
+
+startColor : Model -> PieceColor
+startColor m =
+    Array.get 0 m.steps
+        |> Maybe.map (\s -> Position.sideToMove s.position)
+        |> Maybe.withDefault PieceColor.white
 
 
 state : Model2 -> State

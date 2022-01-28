@@ -2,6 +2,8 @@ module Log exposing (toLines)
 
 import Array
 import ListEx
+import Model
+import Notation
 import PieceColor
 import Step exposing (Step)
 import Types exposing (..)
@@ -17,19 +19,14 @@ dummyFirstItem m =
     { selected = m.idx == 0, text = Just "..." }
 
 
-dummyLastItem : LogItem
-dummyLastItem =
-    { selected = False, text = Nothing }
-
-
 makeLines : List LogItem -> List LogLine
 makeLines sans =
     case sans of
         [] ->
             []
 
-        x1 :: [] ->
-            [ { white = x1, black = dummyLastItem } ]
+        _ :: [] ->
+            []
 
         x1 :: x2 :: xs ->
             { white = x1, black = x2 } :: makeLines xs
@@ -42,7 +39,7 @@ toItems m =
             Array.toList m.steps
                 |> List.indexedMap (toItem m)
     in
-    if m.playerColor == PieceColor.white then
+    if Model.startColor m == PieceColor.white then
         lines
 
     else
@@ -56,10 +53,10 @@ toItem m idx s =
     { selected = m.idx == (idx + 1)
     , text =
         if (Array.length m.steps - 1) == idx then
-            Just ""
+            Nothing
 
         else if m.idx > idx then
-            Maybe.map .san s.move
+            s.move |> Maybe.map (\mv -> Notation.toSan mv s.position)
 
         else
             Just "???"
