@@ -20,6 +20,11 @@ fromStep step =
     }
 
 
+updateArrows : State -> List Arrow -> State
+updateArrows s arrows =
+    { s | arrows = arrows }
+
+
 updateArrow : State -> Arrow -> State
 updateArrow s arrow =
     let

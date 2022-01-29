@@ -6,6 +6,7 @@ import Json.Encode as E
 
 type alias Input =
     { answer : String
+    , arrows : String
     , devicePixelRatio : Float
     , fen : String
     , moves : List String
@@ -17,6 +18,7 @@ type alias Input =
 
 type alias RawInput =
     { answer : String
+    , arrows : String
     , devicePixelRatio : Float
     , fen : String
     , moves : String
@@ -30,17 +32,19 @@ decode : E.Value -> Input
 decode value =
     case D.decodeValue decoder value of
         Ok input ->
-            { answer = input.answer
+            { answer = unencode input.answer
+            , arrows = input.arrows
             , devicePixelRatio = input.devicePixelRatio
             , fen = input.fen
             , moves = input.moves |> parseMoves
             , prevMoves = input.prevMoves |> parseMoves
-            , prompt = input.prompt
+            , prompt = unencode input.prompt
             , showAnswer = input.showAnswer
             }
 
         Err _ ->
             { answer = ""
+            , arrows = ""
             , devicePixelRatio = 1.0
             , fen = ""
             , moves = []
@@ -52,8 +56,9 @@ decode value =
 
 decoder : D.Decoder RawInput
 decoder =
-    D.map7 RawInput
+    D.map8 RawInput
         (D.field "answer" D.string)
+        (D.field "arrows" D.string)
         (D.field "devicePixelRatio" D.float)
         (D.field "fen" D.string)
         (D.field "moves" D.string)
@@ -63,7 +68,12 @@ decoder =
 
 
 parseMoves : String -> List String
-parseMoves moves =
-    moves
+parseMoves str =
+    str
         |> String.split " "
         |> List.filter (not << String.isEmpty)
+
+
+unencode : String -> String
+unencode str =
+    String.replace "\\n" "\n" str

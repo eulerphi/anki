@@ -41,10 +41,14 @@ fromInput input =
             min (Array.length steps - 1) (List.length input.prevMoves)
 
         s =
-            Array.get idx steps |> Maybe.withDefault Step.initial
+            Array.get idx steps
+                |> Maybe.withDefault Step.initial
+                |> State.fromStep
+                |> State.updateArrows
+                |> (\fn -> fn (parseArrows input.arrows))
 
         playerColor =
-            s.position |> Position.sideToMove
+            s.step.position |> Position.sideToMove
     in
     { answer = input.answer
     , idx = idx
@@ -55,13 +59,36 @@ fromInput input =
     , selected = Nothing
     , showAnswer = input.showAnswer
     , steps = steps
-    , states = UndoList.fresh (State.fromStep s)
+    , states = UndoList.fresh s
     , viewCtx =
         ViewContext.init
             { devicePixelRatio = input.devicePixelRatio
             , envelope = ViewCtxMsg
             }
     }
+
+
+parseArrows : String -> List Arrow
+parseArrows str =
+    str
+        |> String.split " "
+        |> List.filter (not << String.isEmpty)
+        |> List.map (\s -> ( String.left 2 s, String.right 2 s ))
+        |> List.filterMap parseArrow
+
+
+parseArrow : ( String, String ) -> Maybe Arrow
+parseArrow ( src, dst ) =
+    let
+        squares =
+            ( Square.fromString src, Square.fromString dst )
+    in
+    case squares of
+        ( Just src_, Just dst_ ) ->
+            Just { src = src_, dst = dst_ }
+
+        _ ->
+            Nothing
 
 
 position : Model2 -> Position
