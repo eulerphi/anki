@@ -1,4 +1,3 @@
--Previous moves input
 -Scrollable log
 -Simplify coords by only showing a1 and/or h8?
 -Better UX for movement, marks, and arrows?

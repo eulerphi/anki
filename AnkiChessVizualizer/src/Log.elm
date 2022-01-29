@@ -16,7 +16,12 @@ toLines m =
 
 dummyFirstItem : Model -> LogItem
 dummyFirstItem m =
-    { selected = m.idx == 0, text = Just "..." }
+    { selected = m.idx == 0, stepIdx = Just 0, text = Just "..." }
+
+
+dummyLastItem : LogItem
+dummyLastItem =
+    { selected = False, stepIdx = Nothing, text = Nothing }
 
 
 makeLines : List LogItem -> List LogLine
@@ -25,8 +30,8 @@ makeLines sans =
         [] ->
             []
 
-        _ :: [] ->
-            []
+        x1 :: [] ->
+            [ { white = x1, black = dummyLastItem } ]
 
         x1 :: x2 :: xs ->
             { white = x1, black = x2 } :: makeLines xs
@@ -50,12 +55,25 @@ toItems m =
 
 toItem : Model -> Int -> Step -> LogItem
 toItem m idx s =
-    { selected = m.idx == (idx + 1)
-    , text =
-        if (Array.length m.steps - 1) == idx then
+    let
+        stepIdx =
+            idx + 1
+
+        isLastItem =
+            Array.length m.steps == stepIdx
+    in
+    { selected = m.idx == stepIdx
+    , stepIdx =
+        if isLastItem then
             Nothing
 
-        else if m.idx > idx then
+        else
+            Just stepIdx
+    , text =
+        if isLastItem then
+            Nothing
+
+        else if m.idx >= stepIdx then
             s.move |> Maybe.map (\mv -> Notation.toSan mv s.position)
 
         else

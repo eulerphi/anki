@@ -37,6 +37,7 @@ type alias LogLine =
 
 type alias LogItem =
     { selected : Bool
+    , stepIdx : Maybe Int
     , text : Maybe String
     }
 
@@ -88,6 +89,7 @@ type Msg
     | LastMove
     | NextMove
     | PrevMove
+    | SetMove Int
     | ClickSquare Square
     | SelectMode Mode
     | ViewCtxMsg ViewContext.Msg

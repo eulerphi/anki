@@ -55,6 +55,11 @@ update msg m =
                 |> Model.updateIndex m
                 |> (\m_ -> ( m_, Cmd.none ))
 
+        SetMove idx ->
+            idx
+                |> Model.updateIndex m
+                |> (\m_ -> ( m_, Cmd.none ))
+
         SelectMode mode ->
             ( { m | mode = mode }, Cmd.none )
 

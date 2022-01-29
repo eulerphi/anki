@@ -449,16 +449,30 @@ logItem item =
 
             else
                 "transparent"
+
+        attrs =
+            [ HtmlAttrs.style "display" "flex"
+            , HtmlAttrs.style "flex" "0 0 43%"
+            , HtmlAttrs.style "justify-content" "center"
+            , HtmlAttrs.style "font-size" "1.185em"
+            , HtmlAttrs.style "line-height" "2.07em"
+            , HtmlAttrs.style "color" "#4d4d4d"
+            , HtmlAttrs.style "background-color" backgroundColor
+            , Html.Events.onDoubleClick NoOp
+            ]
+
+        clickAttrs =
+            case item.stepIdx of
+                Just idx ->
+                    [ HtmlAttrs.style "cursor" "pointer"
+                    , Html.Events.onClick (SetMove idx)
+                    ]
+
+                Nothing ->
+                    []
     in
     Html.div
-        [ HtmlAttrs.style "display" "flex"
-        , HtmlAttrs.style "flex" "0 0 43%"
-        , HtmlAttrs.style "justify-content" "center"
-        , HtmlAttrs.style "font-size" "1.185em"
-        , HtmlAttrs.style "line-height" "2.07em"
-        , HtmlAttrs.style "color" "#4d4d4d"
-        , HtmlAttrs.style "background-color" backgroundColor
-        ]
+        (attrs ++ clickAttrs)
         [ Html.text (Maybe.withDefault "" item.text) ]
 
 
