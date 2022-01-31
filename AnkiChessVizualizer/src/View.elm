@@ -157,7 +157,7 @@ sidebarButton : Float -> Msg -> String -> Bool -> Html Msg
 sidebarButton size msg imageUri isSelected =
     let
         css =
-            [ HtmlAttrs.style "display" "flex"
+            [ HtmlAttrs.style "display" "block"
             , HtmlAttrs.style "justify-content" "center"
             , HtmlAttrs.style "align-items" "center"
             , HtmlAttrs.style "background-color" "transparent"
@@ -183,6 +183,7 @@ sidebarButton size msg imageUri isSelected =
         [ Html.div
             [ HtmlAttrs.style "width" "80%"
             , HtmlAttrs.style "height" "80%"
+            , HtmlAttrs.style "margin" "auto"
             , HtmlAttrs.style "background-image" imageUri
             , HtmlAttrs.style "background-size" "cover"
             ]
