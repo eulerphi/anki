@@ -1,0 +1,36 @@
+{
+    "name": "Anki Chess Importer",
+    "description": "Shows some of the features of the Context Menus API",
+    "version": "0.6",
+    "permissions": [
+        "activeTab",
+        "contextMenus",
+        "notifications",
+        "http://localhost/"
+    ],
+    "icons": {
+        "16": "icon-16.png",
+        "32": "icon-32.png",
+        "48": "icon-64.png",
+        "128": "icon-128.png"
+    },
+    "background": {
+        "scripts": [
+            "anki.js",
+            "background.js"
+        ]
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "https://lichess.org/training*"
+            ],
+            "js": [
+                "chess.js",
+                "lichess.js",
+                "content.js"
+            ]
+        }
+    ],
+    "manifest_version": 2
+}
