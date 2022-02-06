@@ -1,0 +1,35 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Anki Chess Vizualizer</title>
+    <script type="text/javascript" src="build/app.js"></script>
+</head>
+
+<body>
+    <main></main>
+    <script type="text/javascript">
+        var elmApp = Elm.Main.init({
+            node: document.querySelector('main'),
+            flags: {
+                answer: "",
+                arrows: "",
+                devicePixelRatio: window.devicePixelRatio,
+                // fen: "3r1k2/pp1n2pb/q1p1Qp2/2P2r2/3Pp1Np/P1P1B2P/6P1/1R1R2K1 w - - 4 24",
+                // moves: "Nh6 Qc4 Qc4",
+                // prompt: "Winning Position (fork)",
+                // fen: "4rr1k/ppqb2p1/3p4/2p2n2/2PpBP1P/PP4P1/2QPN3/R3K2R b KQq - 0 1",
+                // moves: "Rxe4",
+                // prevMoves: "",
+                fen: "r1bqk2r/p5pp/2p5/n1p1pp2/6n1/2NB4/PPPP1PPP/RNBQKR2 b KQkq - 0 1",
+                moves: "Qh5+ g6 Qxh2",
+                prevMoves: "Nxh2",
+                prompt: "Winning Position \\n(fork)",
+                showAnswer: true
+            }
+        });
+    </script>
+</body>
+
+</html>
