@@ -3,7 +3,7 @@
 ## Create ACV-v1 Note Type
 1. Download the latest Anki Chess Toolkit release.
 1. Copy "_acv_v1_*.js" (e.g. "_acv_v1_220208_2952.js") to your [Anki profile's media folder](https://docs.ankiweb.net/files.html#file-locations)
-    1. **NOTE**: The underscore prefix in the file name indicates to Anki should ignore the file (i.e. Anki shouldn't clean it up).
+    1. **NOTE**: The underscore prefix in the file name tells Anki should ignore the file (i.e. Anki shouldn't clean it up).
 1. Open Anki
 1. Create a note type (i.e. Tools | Manage Note Types | Add)
 1. Select "Add: Basic"
