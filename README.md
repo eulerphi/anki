@@ -2,7 +2,7 @@
 ### Status: _Alpha+_
 ![main](/images/acv.png)
 
-The Anki Chess Toolkit (ACT) consists of the:
+The Anki Chess Toolkit (ACT) contains:
  - [Anki Chess Visualizer (ACV)](/AnkiChessVizualizer/): A chess board visualizer that runs within Anki.
     - [Demo](https://eulerphi.github.io/acv/)
     - [Installation Guide](/AnkiChessVizualizer/install.md)
