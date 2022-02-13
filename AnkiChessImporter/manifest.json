@@ -17,13 +17,14 @@
     "background": {
         "scripts": [
             "anki.js",
+            "importer.js",
             "background.js"
         ]
     },
     "content_scripts": [
         {
             "matches": [
-                "https://lichess.org/training*"
+                "https://lichess.org/*"
             ],
             "js": [
                 "chess.js",

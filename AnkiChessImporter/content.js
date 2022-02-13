@@ -1,8 +1,11 @@
 chrome.extension.onMessage.addListener(function (message, sender, callback) {
-    if (message.type == 'importLichessPuzzle') {
+    if (message.type == 'copy') {
+        Lichess.copy(message.data);
+    }
+    if (message.type == 'import') {
         chrome.runtime.sendMessage({
             'type': 'addNote',
-            'data': Lichess.fromPuzzle()
+            'data': Lichess.toAcvDatafromPuzzle()
         });
     }
 });
