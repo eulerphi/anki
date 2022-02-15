@@ -17,19 +17,25 @@ function Select-Choice($prompt, $items) {
 
 function Get-AnkiMediaPath() {
     $paths = ls ~\AppData\Roaming\Anki2\ -Directory |
-        ? { Test-Path (Join-Path $_.FullName "collection.media") }
+    ? { Test-Path (Join-Path $_.FullName "collection.media") }
 
     if ($paths.length -eq 0) {
         return ""
-    } else {
+    }
+    else {
         $path = if ($paths.length -eq 1) { $paths[0] }
-                else { Select-Choice "Select Anki Profile:" $paths }
+        else { Select-Choice "Select Anki Profile:" $paths }
         return Join-Path $path "collection.media"
     }
 }
 
 function Build-Optimized() {
     elm make src/Main.elm --output build/app.js --optimize
+}
+
+function Get-ScriptNameWithVersion() {
+    $version = (get-date).ToString("yyMMdd_mmss")
+    return "_acv_v1_$version.js"
 }
 
 if ($args[0] -eq "live") {
@@ -43,8 +49,7 @@ elseif ($args[0] -eq "anki") {
     else {
         Write-Host "Building..."
         Build-Optimized
-        $version = (get-date).ToString("yyMMdd_mmss")
-        $name = "_acv_v1_$version.js"
+        $name = Get-ScriptNameWithVersion
         Write-Host "Deploying '$name' to '$path'..."
         cp "build\app.js" "$path\$name" -Force
         Write-Host "Success!"
@@ -63,6 +68,16 @@ elseif ($args[0] -eq "gh") {
         cp "build\app.js" $path -Force
         Write-Host "Success!"
     }
+}
+elseif ($args[0] -eq "rel") {
+    $path = "..\release\acv"
+    Write-Host "Building..."
+    Build-Optimized
+    $name = Get-ScriptNameWithVersion
+    Write-Host "Deploying '$name' to '$path'..."
+    New-Item -Path "$path\$name" -ItemType File -Force
+    Copy-Item "build\app.js" "$path\$name" -Force
+    Write-Host "Success!"
 }
 else {
     elm make src/Main.elm --output build/app.js
