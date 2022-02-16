@@ -158,6 +158,7 @@ sidebarButton size msg imageUri isSelected =
     let
         css =
             [ HtmlAttrs.style "display" "block"
+            , HtmlAttrs.style "box-sizing" "border-box"
             , HtmlAttrs.style "justify-content" "center"
             , HtmlAttrs.style "align-items" "center"
             , HtmlAttrs.style "background-color" "transparent"
@@ -275,7 +276,7 @@ coords m =
                 |> List.map (Tuple.mapSecond (Point.forRankCoord m))
                 |> List.map
                     (coord m
-                        [ HtmlAttrs.style "justify-content" "right"
+                        [ HtmlAttrs.style "justify-content" "flex-end"
                         , HtmlAttrs.style "align-items" "center"
                         ]
                     )
@@ -290,11 +291,7 @@ coords m =
                     )
                 |> List.map (Tuple.mapSecond (Point.forFileCoord m))
                 |> List.map
-                    (coord m
-                        [ HtmlAttrs.style "justify-content" "center"
-                        , HtmlAttrs.style "align-items" "top"
-                        ]
-                    )
+                    (coord m [ HtmlAttrs.style "justify-content" "center" ])
     in
     Html.div [] (ranks ++ files)
 
@@ -428,7 +425,8 @@ logLine : Int -> LogLine -> List (Html Msg)
 logLine idx line =
     [ Html.div
         [ HtmlAttrs.style "display" "flex"
-        , HtmlAttrs.style "flex" "0 0 13%"
+        , HtmlAttrs.style "flex" "0 0 14%"
+        , HtmlAttrs.style "box-sizing" "border-box"
         , HtmlAttrs.style "justify-content" "center"
         , HtmlAttrs.style "line-height" "2.07em"
         , HtmlAttrs.style "background-color" "#f7f6f5"
@@ -627,6 +625,7 @@ square_ step m sq =
         btnAttrs =
             [ HtmlAttrs.style "height" "12.5%"
             , HtmlAttrs.style "width" "12.5%"
+            , HtmlAttrs.style "box-sizing" "border-box"
             , HtmlAttrs.style "position" "absolute"
             , HtmlAttrs.style "top" "0"
             , HtmlAttrs.style "left" "0"
