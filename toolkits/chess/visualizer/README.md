@@ -21,7 +21,7 @@ The "Puzzle" field has one or two lines:
 | rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1<br>e4 e5 Nf3 | FEN of default board position.<br>All moves are shown as "???".  |
 | -<br>e4 e5 Nf3 | Same as above<br>'-' is shorthand for the default board |
 | -<br>e4 e5 \| Nf3 | "e4" and "e5" are revealed<br>"Nf3" is shown as "???" | 
-| r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 1 | Only FEN (no moves)  
+| r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 1 | Only FEN (no moves) |
 
 ## Prompt
 Arbitrary text to show. When coupled with the "Answer" field, question and answer style cards can be made.
