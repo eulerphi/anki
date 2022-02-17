@@ -1,7 +1,7 @@
 # Anki Chess Visualizer Installation Guide
 
 ## Create ACV-v1 Note Type
-1. Download "\_acv\_v1\_*.js" (e.g. "\_acv\_v1\_220208\_2952.js") from the latest Anki Chess Toolkit release
+1. Download "\_acv\_v1\_*.js" (e.g. "\_acv\_v1\_220208\_2952.js") from the [latest Anki Chess Toolkit release](https://github.com/eulerphi/anki/releases/latest)
 1. Copy "\_acv\_v1\_*.js" to your [Anki profile's media folder](https://docs.ankiweb.net/files.html#file-locations)
     1. **NOTE**: The underscore prefix in the file name tells Anki to "ignore" the file (i.e. Anki won't clean it up).
 1. Open Anki
@@ -13,10 +13,10 @@
 
 ## Set up Fields
 1. Select "ACV-v1" from the list of note types and click "Fields..."
-1. Rename "Front" as "FEN"
-1. Rename "Back" as "Moves"
-1. Add fields "Prompt", "Answer", "PreviousMoves", "Arrows", and "Source"
-1. There should now be 7 fields
+1. Rename "Front" as "Puzzle"
+1. Rename "Back" as "Prompt"
+1. Add fields "Answer", "Arrows", and "Source"
+1. There should now be 5 fields
 1. Click Save
 
 ## Set up Cards
@@ -48,10 +48,8 @@
                 devicePixelRatio: window.devicePixelRatio,
                 answer: '{{text:Answer}}',
                 arrows: '{{text:Arrows}}',
-                fen: '{{text:FEN}}',
-                moves: '{{text:Moves}}',
-                prevMoves: '{{text:PreviousMoves}}',
-                prompt: '{{text:Prompt}}',
+                puzzle: '{{Puzzle}}',
+                prompt: '{{Prompt}}',
                 showAnswer: !!document.querySelector('#backside')
             }});
     }

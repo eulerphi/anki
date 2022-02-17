@@ -9,6 +9,7 @@ import Position exposing (Position)
 import Square exposing (Square)
 import State
 import Step exposing (Step)
+import StringEx
 import Types exposing (..)
 import UndoList
 import ViewContext exposing (ViewContext)
@@ -31,6 +32,26 @@ clearSelection m =
     { m | selected = Nothing }
 
 
+fromError : String -> Model2
+fromError error =
+    { answer = ""
+    , idx = 0
+    , layout = Board.none
+    , mode = Moving
+    , playerColor = PieceColor.white
+    , prompt = "**ERROR**: " ++ error
+    , selected = Nothing
+    , showAnswer = False
+    , steps = Array.fromList []
+    , states = UndoList.fresh State.empty
+    , viewCtx =
+        ViewContext.init
+            { devicePixelRatio = 1
+            , envelope = ViewCtxMsg
+            }
+    }
+
+
 fromInput : Input -> Model2
 fromInput input =
     let
@@ -38,7 +59,7 @@ fromInput input =
             Step.fromInput input
 
         idx =
-            min (Array.length steps - 1) (List.length input.prevMoves)
+            min (Array.length steps - 1) input.puzzle.startMoveIndex
 
         s =
             Array.get idx steps
@@ -50,12 +71,12 @@ fromInput input =
         playerColor =
             s.step.position |> Position.sideToMove
     in
-    { answer = input.answer
+    { answer = StringEx.unencodeNewlines input.answer
     , idx = idx
     , layout = Board.none
     , mode = Moving
     , playerColor = playerColor
-    , prompt = input.prompt
+    , prompt = StringEx.unencodeNewlines input.prompt
     , selected = Nothing
     , showAnswer = input.showAnswer
     , steps = steps

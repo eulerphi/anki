@@ -2,6 +2,7 @@ module Main exposing (..)
 
 import Browser
 import Input
+import Json.Decode as D
 import Json.Encode as E
 import Model
 import Types exposing (..)
@@ -17,8 +18,16 @@ import ViewContext
 init : E.Value -> ( Model2, Cmd Msg )
 init flags =
     let
+        inputResult =
+            D.decodeValue Input.decode flags
+
         m =
-            flags |> Input.decode |> Model.fromInput
+            case inputResult of
+                Ok input ->
+                    Model.fromInput input
+
+                Err e ->
+                    D.errorToString e |> Model.fromError
     in
     ( m, ViewContext.initCmd m.viewCtx )
 

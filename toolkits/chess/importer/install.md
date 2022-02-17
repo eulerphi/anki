@@ -8,7 +8,7 @@
 
 
 ## Set up Chrome
-1. Download and unzip importer.zip from the latest Anki Chess Toolkit release.
+1. Download and unzip importer.zip from the latest [Anki Chess Toolkit release](https://github.com/eulerphi/anki/releases/latest).
 1. Turn on Chrome developer mode ([guide](https://developer.chrome.com/docs/extensions/mv3/faq/#:~:text=You%20can%20start%20by%20turning,a%20packaged%20extension%2C%20and%20more.))
 1. Open Chrome's extension screen (i.e. More Tools | Extensions)
 1. Click "Load unpacked"

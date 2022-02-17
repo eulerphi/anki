@@ -46,9 +46,7 @@ const Importer = (function () {
         }
 
         function validateData(data) {
-            validateHasStringValue(data, 'fen');
-            validateHasStringValue(data, 'previousMoves');
-            validateHasStringValue(data, 'moves');
+            validateHasStringValue(data, 'puzzle');
             validateHasStringValue(data, 'prompt');
             validateHasStringValue(data, 'source');
         }
@@ -67,8 +65,9 @@ const Importer = (function () {
                     const deck = getDeck(decks);
                     const model = getModel(models);
 
+                    console.log(`Anki.addNote (request): (${deck}, ${model}, ${JSON.stringify(data)})`);
                     const response = await Anki.addNote(deck, model, data)
-                    console.log(`Anki.addNote: ${JSON.stringify(response)}`);
+                    console.log(`Anki.addNote (response): ${JSON.stringify(response)}`);
 
                     notify(`Added: '${data.prompt} to ${deck}'`);
 

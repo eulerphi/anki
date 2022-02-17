@@ -245,11 +245,7 @@ const Lichess = (function () {
 
 
         function title() {
-            const ts = themes();
-            const themesStr = !!ts.length
-                ? ` (${ts.join()})`
-                : '';
-            return `${id()}${themesStr}`;
+            return `${themes().join()}`;
         };
 
         function url() {
@@ -259,10 +255,14 @@ const Lichess = (function () {
         return {
             toAcvData: function () {
                 const moves = MoveLog.getMoves();
+                const fen = Util.fen(moves.previous);
+                const next = moves.next.join(' ');
+                const movesStr = !!moves.current
+                    ? `${moves.current} | ${next}`
+                    : next;
+
                 return {
-                    'fen': Util.fen(moves.previous),
-                    'previousMoves': moves.current,
-                    'moves': moves.next.join(' '),
+                    'puzzle': `${fen}<br>${movesStr}`,
                     'prompt': title(),
                     'source': url()
                 };
@@ -308,7 +308,7 @@ const Lichess = (function () {
             const moves = MoveLog.fromActive();
             console.log(`moves: ${moves}`);
 
-            navigator.clipboard.writeText(`${fen} ${moves}`);
+            navigator.clipboard.writeText(`${fen}\n${moves}`);
         },
 
         toAcvDatafromPuzzle: function () {

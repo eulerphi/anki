@@ -12,6 +12,14 @@ clearAnnotations s =
     { s | arrows = [], marks = Dict.empty }
 
 
+empty : State
+empty =
+    { arrows = []
+    , marks = Dict.empty
+    , step = Step.initial
+    }
+
+
 fromStep : Step -> State
 fromStep step =
     { arrows = []

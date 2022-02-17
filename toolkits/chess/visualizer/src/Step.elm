@@ -38,10 +38,14 @@ initial =
 
 fromInput : Input -> Array Step
 fromInput input =
-    Position.fromFen input.fen
-        |> Maybe.map (\p -> makeSteps p Nothing (input.prevMoves ++ input.moves))
-        |> Maybe.withDefault []
-        |> Array.fromList
+    let
+        p =
+            input.puzzle.position
+
+        moves =
+            input.puzzle.moves
+    in
+    makeSteps p Nothing moves |> Array.fromList
 
 
 makeSteps : Position -> Maybe Move -> List String -> List Step
