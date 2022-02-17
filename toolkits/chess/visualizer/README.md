@@ -5,11 +5,11 @@ See [guide](install.md).
 
 # Fields
 ## Puzzle
-The "Puzzle" field has two lines:
-1. The [Forsyth–Edwards Notation](https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation) (FEN) value of the starting position
+The "Puzzle" field has one or two lines:
+1. (Required) The [Forsyth–Edwards Notation](https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation) (FEN) value of the initial position
     * This position must immediately precede the first move in the moves list.
     * The hyphen, '-', is a shorthand value to specify the default starting position. 
-1.  A space separated list of moves to be solved.
+1.  (Optional) A space separated list of moves to be solved.
     * Each move is encoded using [short algebraic notation](https://en.wikipedia.org/wiki/Algebraic_notation_(chess)). For example, "e4 e5 f3".
     * Moves show up as "???" in the move log.
     * An optional '\|' may be used to indicate that the moves to the left should be revealed (i.e. the actual puzzle consists of the moves on the right).

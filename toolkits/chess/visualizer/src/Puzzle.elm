@@ -2,7 +2,9 @@ module Puzzle exposing (Puzzle, decode)
 
 import Array
 import Json.Decode as D
+import Piece
 import Position exposing (Position)
+import Square
 import StringEx
 
 
@@ -72,8 +74,24 @@ fenParseErrorMessage =
 
 
 isValidPosition : Position -> Bool
-isValidPosition p =
-    Position.moves p |> List.isEmpty |> not
+isValidPosition position =
+    Square.all
+        |> List.map (\sq -> Position.pieceOn sq position)
+        |> List.filter
+            (\piece ->
+                case piece of
+                    Just p ->
+                        p == Piece.blackKing || p == Piece.whiteKing
+
+                    Nothing ->
+                        False
+            )
+        |> List.length
+        |> (==) 2
+
+
+
+-- Position.moves p |> List.isEmpty |> not
 
 
 noMoves : ( List String, Int )
