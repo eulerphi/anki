@@ -24,29 +24,29 @@ fromViewContext _ vc =
             0.1 * vc.size.height
 
         minMarginWidths =
-            100.0
+            80.0
 
         contentWidth =
-            vc.size.width - minMarginWidths
+            vc.size.width - (2 * minMarginWidths)
 
         boardSize =
             min
                 (vc.size.height - headerHeight - footerHeight)
                 (0.6 * contentWidth)
 
+        squareSize =
+            boardSize / 8
+
         panelWidth =
             min
-                (0.4 * contentWidth)
+                (0.4 * contentWidth - squareSize)
                 (boardSize / 1.5)
 
         panelHeight =
             boardSize
-
-        squareSize =
-            boardSize / 8
     in
     { boardSize = boardSize
-    , buttonSize = 0.8 * squareSize
+    , buttonSize = min squareSize minMarginWidths |> (*) 0.8
     , headerHeight = headerHeight
     , panelHeight = panelHeight
     , panelWidth = panelWidth

@@ -1,4 +1,4 @@
-module Log exposing (toLines)
+module Log exposing (itemElementId, logElementId, toLines)
 
 import Array
 import ListEx
@@ -7,6 +7,16 @@ import Notation
 import PieceColor
 import Step exposing (Step)
 import Types exposing (..)
+
+
+itemElementId : Int -> String
+itemElementId idx =
+    "move-item-" ++ String.fromInt idx
+
+
+logElementId : String
+logElementId =
+    "move-log"
 
 
 toLines : Model -> List LogLine

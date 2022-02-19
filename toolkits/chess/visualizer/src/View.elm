@@ -162,7 +162,7 @@ sidebarButton size msg imageUri isSelected =
             , HtmlAttrs.style "justify-content" "center"
             , HtmlAttrs.style "align-items" "center"
             , HtmlAttrs.style "background-color" "transparent"
-            , HtmlAttrs.style "border-width" "4px"
+            , HtmlAttrs.style "border-width" "2px"
             , HtmlAttrs.style "margin" "10px 0px"
             , HtmlAttrs.style "width" (CssEx.px size)
             , HtmlAttrs.style "height" (CssEx.px size)
@@ -367,7 +367,10 @@ log m =
         , HtmlAttrs.style "flex-direction" "column"
         ]
         [ Html.div
-            [ HtmlAttrs.style "flex" "1 0 auto"
+            [ HtmlAttrs.id Log.logElementId
+            , HtmlAttrs.style "flex" "1 0 auto"
+            , HtmlAttrs.style "height" "1px"
+            , HtmlAttrs.style "overflow-y" "scroll"
             ]
             [ moves ]
         , Html.div
@@ -425,7 +428,7 @@ logLine : Int -> LogLine -> List (Html Msg)
 logLine idx line =
     [ Html.div
         [ HtmlAttrs.style "display" "flex"
-        , HtmlAttrs.style "flex" "0 0 14%"
+        , HtmlAttrs.style "flex" "0 0 10%"
         , HtmlAttrs.style "box-sizing" "border-box"
         , HtmlAttrs.style "justify-content" "center"
         , HtmlAttrs.style "line-height" "2.07em"
@@ -457,8 +460,17 @@ logItem item =
             , HtmlAttrs.style "line-height" "2.07em"
             , HtmlAttrs.style "color" "#4d4d4d"
             , HtmlAttrs.style "background-color" backgroundColor
+            , HtmlAttrs.style "border" "0px none"
             , Html.Events.onDoubleClick NoOp
             ]
+
+        idAttrs =
+            case item.stepIdx of
+                Just idx ->
+                    [ HtmlAttrs.id (Log.itemElementId idx) ]
+
+                Nothing ->
+                    []
 
         clickAttrs =
             case item.stepIdx of
@@ -470,8 +482,8 @@ logItem item =
                 Nothing ->
                     []
     in
-    Html.div
-        (attrs ++ clickAttrs)
+    Html.button
+        (attrs ++ idAttrs ++ clickAttrs)
         [ Html.text (Maybe.withDefault "" item.text) ]
 
 

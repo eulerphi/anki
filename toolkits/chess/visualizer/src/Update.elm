@@ -1,12 +1,15 @@
 module Update exposing (..)
 
 import Array
+import Browser.Dom
+import Log
 import Model
 import Move
 import Position
 import Square exposing (Square)
 import State
 import Step
+import Task
 import Types exposing (..)
 import ViewContext
 
@@ -24,7 +27,7 @@ update msg m =
             ( Model.undo m, Cmd.none )
 
         Clear ->
-            ( Model.updateIndex m m.idx, Cmd.none )
+            updateIndex m m.idx
 
         ClickSquare sq ->
             case m.mode of
@@ -38,27 +41,21 @@ update msg m =
                     ( clickMove m sq, Cmd.none )
 
         FirstMove ->
-            Model.updateIndex m 0
-                |> (\m_ -> ( m_, Cmd.none ))
+            updateIndex m 0
 
         LastMove ->
-            Model.updateIndex m (Array.length m.steps - 1)
-                |> (\m_ -> ( m_, Cmd.none ))
+            updateIndex m (Array.length m.steps - 1)
 
         NextMove ->
             min (m.idx + 1) (Array.length m.steps - 1)
-                |> Model.updateIndex m
-                |> (\m_ -> ( m_, Cmd.none ))
+                |> updateIndex m
 
         PrevMove ->
             max 0 (m.idx - 1)
-                |> Model.updateIndex m
-                |> (\m_ -> ( m_, Cmd.none ))
+                |> updateIndex m
 
         SetMove idx ->
-            idx
-                |> Model.updateIndex m
-                |> (\m_ -> ( m_, Cmd.none ))
+            updateIndex m idx
 
         SelectMode mode ->
             ( { m | mode = mode }, Cmd.none )
@@ -112,3 +109,51 @@ clickMove m sq =
                     |> Maybe.withDefault (Model.state m)
                     |> Model.updateState m
                     |> Model.clearSelection
+
+
+scrollLogItemIntoView : Int -> Cmd Msg
+scrollLogItemIntoView itemIdx =
+    Task.map3
+        (\item log viewport ->
+            let
+                topDiff =
+                    item.element.y - log.element.y
+
+                botDiff =
+                    topDiff + item.element.height - log.element.height
+
+                scrollY =
+                    viewport.viewport.y
+            in
+            if topDiff < 0 then
+                max 0 (scrollY + topDiff)
+                    |> Just
+
+            else if botDiff > 0 then
+                Just (scrollY + botDiff)
+
+            else
+                Nothing
+        )
+        (Browser.Dom.getElement (Log.itemElementId itemIdx))
+        (Browser.Dom.getElement Log.logElementId)
+        (Browser.Dom.getViewportOf Log.logElementId)
+        |> Task.andThen
+            (\val ->
+                case val of
+                    Just v ->
+                        Browser.Dom.setViewportOf "movelog" 0 v
+
+                    Nothing ->
+                        Browser.Dom.setViewportOf "DNE" 0 0
+            )
+        |> Task.attempt (\_ -> NoOp)
+
+
+updateIndex : Model2 -> Int -> ( Model2, Cmd Msg )
+updateIndex m idx =
+    let
+        m_ =
+            Model.updateIndex m idx
+    in
+    ( m_, scrollLogItemIntoView m_.idx )
