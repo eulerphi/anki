@@ -308,7 +308,7 @@ const Lichess = (function () {
             const moves = MoveLog.fromActive();
             console.log(`moves: ${moves}`);
 
-            navigator.clipboard.writeText(`${fen}\n${moves}`);
+            navigator.clipboard.writeText(`${fen}\n${moves.join(' ')}`);
         },
 
         toAcvDatafromPuzzle: function () {
