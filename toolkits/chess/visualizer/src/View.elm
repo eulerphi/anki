@@ -455,6 +455,7 @@ logItem item =
         attrs =
             [ HtmlAttrs.style "display" "flex"
             , HtmlAttrs.style "flex" "0 0 43%"
+            , HtmlAttrs.style "box-sizing" "border-box"
             , HtmlAttrs.style "justify-content" "center"
             , HtmlAttrs.style "font-size" "1.185em"
             , HtmlAttrs.style "line-height" "2.07em"
