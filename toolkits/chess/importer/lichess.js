@@ -222,25 +222,25 @@ const Lichess = (function () {
         };
 
         function themes() {
-            const allowed = new Set([
-                'capture the defender',
-                'discovered attack',
-                'double check',
-                'fork',
-                'pin',
-                'sacrifice',
-                'skewer',
-                'attraction',
-                'clearance',
-                'deflection',
-                'interference',
-                'intermezzo',
-                'x-ray attack']);
+            // const allowed = new Set([
+            //     'capture the defender',
+            //     'discovered attack',
+            //     'double check',
+            //     'fork',
+            //     'pin',
+            //     'sacrifice',
+            //     'skewer',
+            //     'attraction',
+            //     'clearance',
+            //     'deflection',
+            //     'interference',
+            //     'intermezzo',
+            //     'x-ray attack']);
 
             return Array
                 .from(document.querySelectorAll('.puzzle__themes__list__entry a'))
-                .map(el => el.innerText.toLowerCase())
-                .filter(x => allowed.has(x));
+                .map(el => el.innerText.toLowerCase());
+            // .filter(x => allowed.has(x));
         };
 
 
