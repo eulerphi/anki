@@ -357,3 +357,7 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+toolkits/education/visualizer/.DS_Store
+toolkits/education/visualizer/build/app.js
+toolkits/education/visualizer/src/.DS_Store
+toolkits/education/visualizer/build/app.js
