@@ -104,12 +104,7 @@ update msg m =
                     ( m, Cmd.none )
 
         EndDrag ->
-            case m.active of
-                Just x ->
-                    ( { m | active = Nothing, tiles = x :: m.tiles }, Cmd.none )
-
-                Nothing ->
-                    ( m, Cmd.none )
+            ( { m | active = Nothing, tiles = Model.tiles m |> List.indexedMap Tile.updatePos }, Cmd.none )
 
 
 main : Program E.Value Model Msg

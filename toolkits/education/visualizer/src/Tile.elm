@@ -1,13 +1,11 @@
 module Tile exposing (..)
 
-import Array exposing (Array)
+import Array
 import Coord exposing (Coord)
 import Css exposing (..)
-import Delta exposing (Delta)
 import Draggable
 import Html.Styled exposing (..)
-import Html.Styled.Attributes exposing (class, css, href, id, src)
-import Html.Styled.Events exposing (onClick)
+import Html.Styled.Attributes exposing (css, id)
 import Msg exposing (..)
 import Random
 import Random.Array
@@ -51,6 +49,12 @@ shuffle seed tiles =
     Random.step (Random.Array.shuffle ts) seed
         |> Tuple.first
         |> Array.toList
+        |> List.indexedMap updatePos
+
+
+updatePos : Int -> Tile -> Tile
+updatePos idx tile =
+    { tile | pos = toPos idx }
 
 
 wordWidth : String -> Float
@@ -94,6 +98,26 @@ tileAttrs tile =
     id tile.id
         :: css (style tile)
         :: evts
+
+
+roundToIndex : Tile -> Int
+roundToIndex tile =
+    let
+        rightIdx =
+            (max 1.0 tile.pos.x / 72)
+                |> ceiling
+
+        border =
+            toFloat rightIdx * 72.0 - 5
+
+        midpoint =
+            tile.pos.x + 31
+    in
+    if midpoint < border then
+        rightIdx - 1
+
+    else
+        rightIdx
 
 
 view : Tile -> Html Msg
