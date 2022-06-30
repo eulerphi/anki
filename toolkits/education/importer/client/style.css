@@ -1,0 +1,27 @@
+#container {
+    display: flex;
+    justify-content: center;
+}
+
+fieldset {
+    display: grid;
+    grid-template-columns: max-content max-content;
+    grid-gap: 10px;
+}
+
+label {
+    align-self: center;
+    justify-self: end;
+}
+
+input[type=text] {
+    width: 30em;
+}
+
+textarea {
+    width: 30em;
+}
+
+textarea.multiline {
+    height: 4em;
+}

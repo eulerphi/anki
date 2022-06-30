@@ -18,10 +18,19 @@
         "scripts": [
             "anki.js",
             "importer.js",
-            "background.js"
+            "background_lichess.js",
+            "background_vocab.js"
         ]
     },
     "content_scripts": [
+        {
+            "matches": [
+                "https://eulerphi.github.io/importer/vocab/*"
+            ],
+            "js": [
+                "content_vocab.js"
+            ]
+        },
         {
             "matches": [
                 "https://lichess.org/*"
@@ -29,7 +38,7 @@
             "js": [
                 "chess.js",
                 "lichess.js",
-                "content.js"
+                "content_lichess.js"
             ]
         }
     ],

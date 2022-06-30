@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Lesson 1</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="container">
+        <form>
+            <fieldset>
+                <legend>Basics</legend>
+                <label for="word">Word:</label>
+                <input type="text" id="word" />
+                <label for="part">Part of Speech:</label>
+                <select id="part">
+                    <option value="(adj.)">Adjective</option>
+                    <option value="(adv.)">Adverb</option>
+                    <option value="(conj.)">Conjunction</option>
+                    <option value="(interj.)">Interjection</option>
+                    <option value="(n.)">Noun</option>
+                    <option value="(pr.)">Pronoun</option>
+                    <option value="(prep.)">Preposition</option>
+                    <option value="(v.)">Verb</option>
+                </select>
+                <label for="definition">Definition:</label>
+                <input type="text" id="definition" />
+            </fieldset>
+            <br>
+            <fieldset>
+                <legend>Examples</legend>
+                <label for="example1">Example 1:</label>
+                <textarea class="multiline" id="example1"></textarea>
+                <label for="example2">Example 2:</label>
+                <textarea class="multiline" id="example2"></textarea>
+                <label for="example3">Example 3:</label>
+                <textarea class="multiline" id="example3"></textarea>
+            </fieldset>
+            <br>
+            <fieldset>
+                <legend>Synonym</legend>
+                <label for="syn_correct">Correct:</label>
+                <input type="text" id="syn_correct" />
+                <label for="syn_incorrect1">Incorrect 1:</label>
+                <input type="text" id="syn_incorrect1" />
+                <label for="syn_incorrect2">Incorrect 2:</label>
+                <input type="text" id="syn_incorrect2" />
+                <label for="syn_incorrect3">Incorrect 3:</label>
+                <input type="text" id="syn_incorrect3" />
+            </fieldset>
+            <br>
+            <fieldset>
+                <legend>Antonym</legend>
+                <label for="ant_correct">Correct:</label>
+                <input type="text" id="ant_correct" />
+                <label for="ant_incorrect1">Incorrect 1:</label>
+                <input type="text" id="ant_incorrect1" />
+                <label for="ant_incorrect2">Incorrect 2:</label>
+                <input type="text" id="ant_incorrect2" />
+                <label for="ant_incorrect3">Incorrect 3:</label>
+                <input type="text" id="ant_incorrect3" />
+            </fieldset>
+            <br>
+            <input type="button" value="→ Anki">
+        </form>
+</body>
+
+</html>
