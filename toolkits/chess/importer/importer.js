@@ -164,14 +164,14 @@ const Importer = (function () {
                 'example1',
                 'example2',
                 // 'example3', (optional)
-                'syn_correct',
-                'syn_incorrect1',
-                'syn_incorrect2',
-                'syn_incorrect3',
-                'ant_correct',
-                'ant_incorrect1',
-                'ant_incorrect2',
-                'ant_incorrect3'
+                // 'syn_correct',
+                // 'syn_incorrect1',
+                // 'syn_incorrect2',
+                // 'syn_incorrect3',
+                // 'ant_correct',
+                // 'ant_incorrect1',
+                // 'ant_incorrect2',
+                // 'ant_incorrect3'
             ];
 
             for (let i = 0; i < ids.length; ++i) {
@@ -192,11 +192,22 @@ const Importer = (function () {
 
                     const deck = getDeck(decks, /reading/i);
 
-                    addUnscrambleNote(data, deck, models);
-                    addSynonymNote(data, deck, models);
-                    addAntonymNote(data, deck, models);
+                    let addCount = 0;
 
-                    notify(`Added: 3 notes to '${deck}'`);
+                    addUnscrambleNote(data, deck, models);
+                    ++addCount;
+
+                    if (!!data['syn_correct']) {
+                        addSynonymNote(data, deck, models);
+                        ++addCount;
+                    }
+
+                    if (!!data['ant_correct']) {
+                        addAntonymNote(data, deck, models);
+                        ++addCount;
+                    }
+
+                    notify(`Added: ${addCount} notes to '${deck}'`);
 
                 } catch (err) {
                     notify(`Error: ${err}`);
